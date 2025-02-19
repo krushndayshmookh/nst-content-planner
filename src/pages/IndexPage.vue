@@ -34,5 +34,4 @@ const signOut = () => {
 const refreshAuth = () => {
   authStore.refreshAuth()
 }
-
 </script>

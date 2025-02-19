@@ -17,7 +17,7 @@ const routes = [
         name: 'courses',
         path: 'courses',
         component: () => import('pages/CoursesPage.vue'),
-      }
+      },
     ],
   },
 
