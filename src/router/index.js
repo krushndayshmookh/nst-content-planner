@@ -2,6 +2,8 @@ import { defineRouter } from '#q-app/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
 import routes from './routes'
 
+// import {pb} from 'src/boot/pocketbase'
+
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -25,6 +27,12 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE)
   })
+
+  // Router.beforeEach(async (to, from) => {
+  //   if (to.meta.requiresAuth && !pb.authStore.isValid) {
+  //     return '/auth/sign-in'
+  //   }
+  // })
 
   return Router
 })
