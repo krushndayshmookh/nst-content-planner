@@ -13,6 +13,11 @@ const routes = [
         path: 'auth/:authCard?',
         component: () => import('pages/AuthPage.vue'),
       },
+      {
+        name: 'courses',
+        path: 'courses',
+        component: () => import('pages/CoursesPage.vue'),
+      }
     ],
   },
 

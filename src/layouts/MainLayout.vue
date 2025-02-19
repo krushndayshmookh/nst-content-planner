@@ -2,7 +2,15 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+        <q-btn
+          v-if="isAuthenticated"
+          flat
+          dense
+          round
+          icon="menu"
+          aria-label="Menu"
+          @click="toggleLeftDrawer"
+        />
 
         <q-toolbar-title> Quasar App </q-toolbar-title>
 
@@ -12,9 +20,9 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+    <q-drawer v-if="isAuthenticated" v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <q-item-label header> Essential Links </q-item-label>
+        <q-item-label header> Welcome {{ loggedInUser.name }} </q-item-label>
 
         <EssentialLink v-for="link in linksList" :key="link.title" v-bind="link" />
       </q-list>
@@ -33,10 +41,9 @@ import { useRoute, useRouter } from 'vue-router'
 
 const linksList = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
+    title: 'Courses',
     icon: 'school',
-    link: 'https://quasar.dev',
+    to: '/courses',
   },
 ]
 
@@ -53,6 +60,7 @@ const route = useRoute()
 const router = useRouter()
 
 const isAuthenticated = computed(() => !!authStore.token)
+const loggedInUser = computed(() => authStore.user)
 
 const checkAuth = () => {
   if (isAuthenticated.value) {
