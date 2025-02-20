@@ -15,7 +15,7 @@
 
     <q-item class="q-px-sm">
       <q-item-section side>
-        <div class="text-h6">{{ props.card.lecture_number }}</div>
+        <div class="text-body1 text-weight-medium">{{ props.card.lecture_number }}</div>
       </q-item-section>
 
       <q-item-section>
@@ -29,10 +29,7 @@
     <q-item class="q-px-sm">
       <q-item-section>
         <q-card flat bordered>
-          <q-item
-            v-if="props.card.column === 'backlog' || props.card.column === 'create-update'"
-            class="q-px-sm"
-          >
+          <q-item v-if="props.card.column === 'backlog'" class="q-px-sm">
             <q-item-section side class="q-pr-sm">
               <q-avatar round color="primary" text-color="white" size="sm">
                 <q-icon name="eva-person-outline" />
@@ -40,37 +37,140 @@
             </q-item-section>
             <q-item-section>
               <q-item-label caption>
-                <span class=""> {{ props.card.creator || 'Krushn' }} </span>
+                <span class=""> {{ props.card.expand?.creator?.name || 'NA' }} </span>
               </q-item-label>
-              <q-item-label>{{ props.card.creation_deadline || '20 Feb 2025' }} </q-item-label>
+              <q-item-label v-if="props.card.creation_deadline">
+                {{ $formatDateForUI(props.card.creation_deadline) }}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-else-if="props.card.column === 'create-update'" class="q-px-sm">
+            <q-item-section side class="q-pr-sm">
+              <q-avatar
+                v-if="props.card.creator && props.card.creation_deadline"
+                round
+                color="primary"
+                text-color="white"
+                size="sm"
+              >
+                <q-icon name="eva-person-outline" />
+              </q-avatar>
+
+              <q-icon
+                v-else
+                round
+                color="negative"
+                text-color="red"
+                size="sm"
+                name="eva-alert-circle-outline"
+              />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>
+                <span
+                  :class="{
+                    'text-red-10': !props.card.creator,
+                  }"
+                >
+                  {{ props.card.expand?.creator?.name || 'Not Assigned' }}
+                </span>
+              </q-item-label>
+              <q-item-label :caption="!props.card.creation_deadline">
+                <span
+                  :class="{
+                    'text-red-10': !props.card.creation_deadline,
+                  }"
+                >
+                  {{ $formatDateForUI(props.card.creation_deadline) || 'No Deadline' }}
+                </span>
+              </q-item-label>
             </q-item-section>
           </q-item>
 
           <q-item v-else-if="props.card.column === 'review1'" class="q-px-sm">
             <q-item-section side class="q-pr-sm">
-              <q-avatar round color="primary" text-color="white" size="sm">
+              <q-avatar
+                v-if="props.card.reviewer1 && props.card.r1_deadline"
+                round
+                color="primary"
+                text-color="white"
+                size="sm"
+              >
                 <q-icon name="eva-person-outline" />
               </q-avatar>
+
+              <q-icon
+                v-else
+                round
+                color="negative"
+                text-color="red"
+                size="sm"
+                name="eva-alert-circle-outline"
+              />
             </q-item-section>
             <q-item-section>
               <q-item-label caption>
-                <span class=""> {{ props.card.reviewer1 || 'Bhavesh' }} </span>
+                <span
+                  :class="{
+                    'text-red-10': !props.card.reviewer1,
+                  }"
+                >
+                  {{ props.card.expand?.reviewer1?.name || 'Not Assigned' }}
+                </span>
               </q-item-label>
-              <q-item-label>{{ props.card.r1_deadline || '20 Feb 2025' }} </q-item-label>
+              <q-item-label :caption="!props.card.r1_deadline">
+                <span
+                  :class="{
+                    'text-red-10': !props.card.r1_deadline,
+                  }"
+                >
+                  {{ $formatDateForUI(props.card.r1_deadline) || 'No Deadline' }}
+                </span>
+              </q-item-label>
             </q-item-section>
           </q-item>
 
           <q-item v-else-if="props.card.column === 'review2'" class="q-px-sm">
             <q-item-section side class="q-pr-sm">
-              <q-avatar round color="primary" text-color="white" size="sm">
+              <q-avatar
+                v-if="props.card.reviewer2 && props.card.r2_deadline"
+                round
+                color="primary"
+                text-color="white"
+                size="sm"
+              >
                 <q-icon name="eva-person-outline" />
               </q-avatar>
+
+              <q-icon
+                v-else
+                round
+                color="negative"
+                text-color="red"
+                size="sm"
+                name="eva-alert-circle-outline"
+              />
             </q-item-section>
             <q-item-section>
               <q-item-label caption>
-                <span class=""> {{ props.card.reviewer2 || 'Vishal' }} </span>
+                <span
+                  :class="{
+                    'text-red-10': !props.card.reviewer2,
+                  }"
+                >
+                  {{ props.card.expand?.reviewer2?.name || 'Not Assigned' }}
+                </span>
               </q-item-label>
-              <q-item-label>{{ props.card.r2_deadline || '20 Feb 2025' }} </q-item-label>
+              <q-item-label :caption="!props.card.r2_deadline">
+                <span
+                  :class="{
+                    'text-red-10': !props.card.r2_deadline,
+                  }"
+                >
+                  {{ $formatDateForUI(props.card.r2_deadline) || 'No Deadline' }}
+                </span>
+              </q-item-label>
             </q-item-section>
           </q-item>
 

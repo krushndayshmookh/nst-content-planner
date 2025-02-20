@@ -19,7 +19,7 @@
     <q-card flat bordered>
       <q-card-section>
         <div class="row items-center">
-          <div class="col">
+          <div class="col-auto">
             <div class="text-body1 text-weight-medium">{{ board.title }}</div>
           </div>
 

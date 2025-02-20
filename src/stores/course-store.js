@@ -69,6 +69,17 @@ export const useCourseStore = defineStore('course', {
       // this.fetchBoard(this.selectedBoard.id)
     },
 
+    async updateCard(cardId, data) {
+      console.log('updateCard', cardId, data)
+      const record = await pb.collection('cards').update(cardId, data)
+      // Refresh the card in the local state
+      const cardIndex = this.selectedBoardCards.findIndex(card => card.id === cardId)
+      if (cardIndex !== -1) {
+        this.selectedBoardCards[cardIndex] = record
+      }
+      return record
+    },
+
     async fetchCourseTeam(courseId) {
       const record = await pb.collection('course_teams').getFirstListItem(`course="${courseId}"`, {
         expand: 'members',
