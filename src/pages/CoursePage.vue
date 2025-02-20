@@ -8,6 +8,14 @@
         <q-btn
           outline
           color="primary"
+          icon="eva-people-outline"
+          label="Team"
+          class="q-mr-sm"
+          :to="`/courses/${courseId}/team`"
+        />
+        <q-btn
+          outline
+          color="primary"
           icon="eva-edit-outline"
           label="Edit"
           @click="openEditCourse"

@@ -22,7 +22,17 @@ const routes = [
         name: 'course',
         path: 'courses/:courseId',
         component: () => import('pages/CoursePage.vue'),
-      }
+      },
+      {
+        name: 'course-team',
+        path: 'courses/:courseId/team',
+        component: () => import('pages/CourseTeamPage.vue'),
+      },
+      {
+        name: 'course-board',
+        path: 'courses/:courseId/boards/:boardId',
+        component: () => import('pages/CourseBoardPage.vue'),
+      },
     ],
   },
 

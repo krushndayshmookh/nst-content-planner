@@ -1,8 +1,16 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header  elevated>
+    <q-header elevated>
       <q-toolbar>
-        <q-btn v-if="isAuthenticated" flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+        <q-btn
+          v-if="isAuthenticated"
+          flat
+          dense
+          round
+          icon="menu"
+          aria-label="Menu"
+          @click="toggleLeftDrawer"
+        />
 
         <q-toolbar-title> NST Content Planner </q-toolbar-title>
 
@@ -27,19 +35,25 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const linksList = [
   {
     title: 'Courses',
-    icon: 'school',
+    icon: 'eva-book-outline',
     to: '/courses',
   },
 ]
 
-const leftDrawerOpen = ref(false)
+import { useGeneralStore } from 'src/stores/general-store'
+const generalStore = useGeneralStore()
+
+const leftDrawerOpen = computed({
+  get: () => generalStore.leftDrawerOpen,
+  set: (value) => (generalStore.leftDrawerOpen = value),
+})
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value

@@ -13,7 +13,9 @@ export const useCourseStore = defineStore('course', {
     selectedCourseBoards: [],
     selectedCourseMembers: [],
     selectedBoard: null,
-    selectedBoardItems: [],
+    selectedBoardCards: [],
+
+    selectedCard: null,
   }),
 
   persist: true,
@@ -51,6 +53,54 @@ export const useCourseStore = defineStore('course', {
       this.selectedCourseBoards = await pb
         .collection('boards')
         .getFullList({ filter: `(course="${courseId}")` })
+    },
+
+    async fetchBoard(boardId) {
+      this.selectedBoard = await pb.collection('boards').getOne(boardId)
+      this.selectedBoardCards = await pb.collection('cards').getFullList({
+        filter: `(board="${boardId}")`,
+        expand: 'type,creator,reviewer1,reviewer2',
+        sort: 'order',
+      })
+    },
+
+    async updateCardColumn(cardId, columnId) {
+      await pb.collection('cards').update(cardId, { column: columnId })
+      // this.fetchBoard(this.selectedBoard.id)
+    },
+
+    async fetchCourseTeam(courseId) {
+      const record = await pb.collection('course_teams').getFirstListItem(`course="${courseId}"`, {
+        expand: 'members',
+      })
+      return record
+    },
+
+    async addTeamMembers(courseId, memberIds) {
+      // First try to get existing team
+      try {
+        const existingTeam = await pb.collection('course_teams').getFirstListItem(`course="${courseId}"`)
+        // Update existing team with new members
+        const updatedMembers = [...new Set([...existingTeam.members, ...memberIds])]
+        await pb.collection('course_teams').update(existingTeam.id, {
+          members: updatedMembers,
+        })
+      } catch (err) {
+        console.error('Failed to add team members:', err)
+        // If no team exists, create new one
+        await pb.collection('course_teams').create({
+          course: courseId,
+          members: memberIds,
+        })
+      }
+    },
+
+    async removeTeamMember(courseId, memberId) {
+      const team = await pb.collection('course_teams').getFirstListItem(`course="${courseId}"`)
+      const updatedMembers = team.members.filter(id => id !== memberId)
+      await pb.collection('course_teams').update(team.id, {
+        members: updatedMembers,
+      })
     },
   },
 })
