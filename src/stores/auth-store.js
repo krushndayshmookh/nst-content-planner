@@ -8,6 +8,8 @@ export const useAuthStore = defineStore('auth', {
     token: null,
   }),
 
+  persist: true,
+
   getters: {
     isAuthenticated() {
       return pb.authStore.isValid

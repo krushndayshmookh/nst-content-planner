@@ -18,6 +18,11 @@ const routes = [
         path: 'courses',
         component: () => import('pages/CoursesPage.vue'),
       },
+      {
+        name: 'course',
+        path: 'courses/:courseId',
+        component: () => import('pages/CoursePage.vue'),
+      }
     ],
   },
 

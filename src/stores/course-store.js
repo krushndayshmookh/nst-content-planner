@@ -9,7 +9,14 @@ export const useCourseStore = defineStore('course', {
     // totalItems: 100,
     // totalPages: 5,
     items: [],
+    selectedCourse: null,
+    selectedCourseBoards: [],
+    selectedCourseMembers: [],
+    selectedBoard: null,
+    selectedBoardItems: [],
   }),
+
+  persist: true,
 
   getters: {
     courses() {
@@ -31,6 +38,19 @@ export const useCourseStore = defineStore('course', {
         scrum_masters: JSON.stringify([pb.authStore.record.id]),
       })
       this.fetchCourses()
+    },
+
+    async updateCourse(courseId, data) {
+      let record = await pb.collection('courses').update(courseId, data)
+      this.fetchCourses()
+      return record
+    },
+
+    async fetchCourse(courseId) {
+      this.selectedCourse = await pb.collection('courses').getOne(courseId)
+      this.selectedCourseBoards = await pb
+        .collection('boards')
+        .getFullList({ filter: `(course="${courseId}")` })
     },
   },
 })
