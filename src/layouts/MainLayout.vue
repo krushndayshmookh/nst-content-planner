@@ -1,18 +1,10 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header  elevated>
       <q-toolbar>
-        <q-btn
-          v-if="isAuthenticated"
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
+        <q-btn v-if="isAuthenticated" flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+        <q-toolbar-title> NST Content Planner </q-toolbar-title>
 
         <div v-if="isAuthenticated">
           <q-btn round flat dense icon="eva-power-outline" @click="signOut"></q-btn>
