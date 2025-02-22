@@ -51,11 +51,16 @@
                         transition-show="scale"
                         transition-hide="scale"
                       >
-                        <q-date v-model="creation_deadline" mask="YYYY-MM-DD">
-                          <div class="row items-center justify-end">
-                            <q-btn v-close-popup label="Close" color="primary" flat />
-                          </div>
-                        </q-date>
+                        <q-date
+                          v-model="creation_deadline"
+                          mask="YYYY-MM-DD"
+                          today-btn
+                          @update:model-value="
+                            () => {
+                              creatorProxy.hide()
+                            }
+                          "
+                        />
                       </q-popup-proxy>
                     </q-icon>
                   </template>
@@ -91,13 +96,14 @@
                         <q-date
                           v-model="r1_deadline"
                           mask="YYYY-MM-DD"
-                          :min="creation_deadline"
-                          :max="getMaxDate(creation_deadline)"
-                        >
-                          <div class="row items-center justify-end">
-                            <q-btn v-close-popup label="Close" color="primary" flat />
-                          </div>
-                        </q-date>
+                          :options="r1OptionsFn"
+                          today-btn
+                          @update:model-value="
+                            () => {
+                              r1Proxy.hide()
+                            }
+                          "
+                        />
                       </q-popup-proxy>
                     </q-icon>
                   </template>
@@ -133,13 +139,15 @@
                         <q-date
                           v-model="r2_deadline"
                           mask="YYYY-MM-DD"
-                          :min="r1_deadline"
-                          :max="getMaxDate(r1_deadline)"
-                        >
-                          <div class="row items-center justify-end">
-                            <q-btn v-close-popup label="Close" color="primary" flat />
-                          </div>
-                        </q-date>
+                          :options="r2OptionsFn"
+                          today-btn
+                          @update:model-value="
+                            () => {
+
+                              r2Proxy.hide()
+                            }
+                          "
+                        />
                       </q-popup-proxy>
                     </q-icon>
                   </template>
@@ -173,6 +181,7 @@ import { useUserStore } from 'src/stores/user-store.js'
 import { useRoute } from 'vue-router'
 import { formatDateForUI } from 'src/boot/filters'
 import { useQuasar } from 'quasar'
+import { date as QuasarDate } from 'quasar'
 
 const courseStore = useCourseStore()
 const userStore = useUserStore()
@@ -195,13 +204,20 @@ const creatorProxy = ref(null)
 const r1Proxy = ref(null)
 const r2Proxy = ref(null)
 
-// Function to calculate max date (30 days from min date)
-const getMaxDate = (minDate) => {
-  if (!minDate) return null
-  const maxDate = new Date(minDate)
-  maxDate.setDate(maxDate.getDate() + 30)
-  return maxDate.toISOString().split('T')[0]
+const r1OptionsFn = (date) => {
+  if (!creation_deadline.value) return true
+  const minDate = new Date(creation_deadline.value)
+  const maxDate = QuasarDate.addToDate(minDate, { days: 7 })
+  return QuasarDate.isBetweenDates(date, minDate, maxDate)
 }
+
+const r2OptionsFn = (date) => {
+  if (!r1_deadline.value) return true
+  const minDate = new Date(r1_deadline.value)
+  const maxDate = QuasarDate.addToDate(minDate, { days: 7 })
+  return QuasarDate.isBetweenDates(date, minDate, maxDate)
+}
+
 // Watch for changes to creator deadline
 watch(creation_deadline, (newDate) => {
   if (newDate) {
