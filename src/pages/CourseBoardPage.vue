@@ -76,6 +76,16 @@
                   @click="openEditBoard"
                 />
               </div>
+
+              <div class="col-auto">
+                <q-btn
+                  outline
+                  color="primary"
+                  icon="eva-list-outline"
+                  label="List View"
+                  :to="`/courses/${courseId}/boards/${boardId}/list`"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -108,6 +118,7 @@
                 group="cards"
                 class="draggable-list"
                 item-key="id"
+                ghost-class="ghost"
                 @end="onDragEnd"
               >
                 <template #item="{ element }">
@@ -129,7 +140,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, /* watch */ } from 'vue'
 import { useRoute } from 'vue-router'
 // import { useQuasar } from 'quasar'
 import { useCourseStore } from 'src/stores/course-store.js'
@@ -210,16 +221,32 @@ const showEditCard = ref(false)
 const openEditCard = (card) => {
   courseStore.selectedCard = { ...card }
   showEditCard.value = true
-
-  // do some changes here to update the selectedCard in store, then update the UI below
-
-  // const cardOnUIIdx = cardsByColumns.value[card.column].findIndex((c) => c.id === card.id)
-  // cardsByColumns.value[card.column][cardOnUIIdx] = courseStore.selectedCard
 }
+
+// watch(showEditCard, (value) => {
+//   if (!value) {
+//     //  then update the UI below
+//     const card = courseStore.selectedCard
+
+//     const cardOnUIIdx = cardsByColumns.value[card.column].findIndex((c) => c.id === card.id)
+//     cardsByColumns.value[card.column][cardOnUIIdx] = courseStore.selectedCard
+//   }
+// })
 </script>
 
 <style scoped>
 .draggable-list {
   min-height: 600px;
+}
+
+.ghost {
+  & > div {
+    & > * {
+      opacity: 0.25;
+    }
+    border: 1px dashed #ccc;
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
 }
 </style>
