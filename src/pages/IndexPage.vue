@@ -1,41 +1,43 @@
 <template>
   <q-page class="q-pa-md">
-    <pre>{{ { user } }}</pre>
-    <!-- <pre>{{ token }}</pre> -->
-    <!-- <pre>{{ isAuthenticated }}</pre> -->
-
-    <q-btn @click="signIn"> Sign In</q-btn>
-    <q-btn @click="signOut"> Sign Out</q-btn>
-    <q-btn @click="refreshAuth"> Refresh Auth</q-btn>
+    <div class="row">
+      <div class="col-3">
+        <q-card class="cursor-pointer" @click="$router.push('/courses')">
+          <q-card-section>
+            <div class="text-h6">Courses</div>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
   </q-page>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+// import { computed } from 'vue'
+// import { useRouter } from 'vue-router'
 
-import { useAuthStore } from 'src/stores/auth-store.js'
-const authStore = useAuthStore()
+// import { useAuthStore } from 'src/stores/auth-store.js'
+// const authStore = useAuthStore()
 
-const user = computed(() => authStore.user)
-// const token = computed(() => authStore.token)
-// const isAuthenticated = computed(() => authStore.isAuthenticated)
+// const user = computed(() => authStore.user)
+// // const token = computed(() => authStore.token)
+// // const isAuthenticated = computed(() => authStore.isAuthenticated)
 
-const signIn = () => {
-  authStore.signIn({
-    email: 'john.doe@example.com',
-    password: 'password123',
-  })
-}
+// const signIn = () => {
+//   authStore.signIn({
+//     email: 'john.doe@example.com',
+//     password: 'password123',
+//   })
+// }
 
-const router = useRouter()
+// const router = useRouter()
 
-const signOut = () => {
-  authStore.signOut()
-  router.push('/auth/sign-in')
-}
+// const signOut = () => {
+//   authStore.signOut()
+//   router.push('/auth/sign-in')
+// }
 
-const refreshAuth = () => {
-  authStore.refreshAuth()
-}
+// const refreshAuth = () => {
+//   authStore.refreshAuth()
+// }
 </script>
