@@ -1,5 +1,17 @@
 <template>
   <q-page class="q-pa-md">
+    <q-breadcrumbs class="text-primary q-mb-md">
+      <template #separator>
+        <q-icon size="1.5em" name="chevron_right" color="grey-7" />
+      </template>
+
+      <q-breadcrumbs-el class="text-grey-7" label="Home" icon="home" to="/" />
+
+      <q-breadcrumbs-el class="text-grey-7" label="Courses" icon="eva-grid-outline" to="/courses" />
+
+      <q-breadcrumbs-el v-if="course" :label="course.title" icon="eva-book-outline" />
+    </q-breadcrumbs>
+
     <div v-if="course" class="q-mb-md row items-center">
       <div class="col">
         <div class="text-h6">{{ course.title }}</div>

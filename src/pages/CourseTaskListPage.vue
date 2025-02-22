@@ -6,6 +6,9 @@
       </template>
 
       <q-breadcrumbs-el class="text-grey-7" label="Home" icon="home" to="/" />
+
+      <q-breadcrumbs-el class="text-grey-7" label="Courses" icon="eva-grid-outline" to="/courses" />
+
       <q-breadcrumbs-el
         v-if="course"
         class="text-grey-7"
@@ -13,7 +16,16 @@
         icon="eva-book-outline"
         :to="`/courses/${courseId}`"
       />
-      <q-breadcrumbs-el v-if="board" :label="board.title" icon="eva-list-outline" />
+
+      <q-breadcrumbs-el
+        v-if="board"
+        class="text-grey-7"
+        :label="board.title"
+        icon="eva-checkmark-square-outline"
+        :to="`/courses/${courseId}/boards/${boardId}`"
+      />
+
+      <q-breadcrumbs-el v-if="board" label="Task List" icon="eva-list-outline" />
     </q-breadcrumbs>
 
     <q-card flat bordered>
@@ -242,8 +254,20 @@ const columns = [
     align: 'left',
     sortable: true,
   },
-  { name: 'r1_deadline', label: 'R1 Deadline', field: 'r1_deadline', align: 'left', sortable: true },
-  { name: 'r2_deadline', label: 'R2 Deadline', field: 'r2_deadline', align: 'left', sortable: true },
+  {
+    name: 'r1_deadline',
+    label: 'R1 Deadline',
+    field: 'r1_deadline',
+    align: 'left',
+    sortable: true,
+  },
+  {
+    name: 'r2_deadline',
+    label: 'R2 Deadline',
+    field: 'r2_deadline',
+    align: 'left',
+    sortable: true,
+  },
   { name: 'actions', label: 'Actions', field: 'actions', align: 'center' },
 ]
 
@@ -310,12 +334,12 @@ const openEditCard = (card) => {
 }
 
 const STATUS_COLORS = {
-  'backlog': 'bg-grey-1',
+  backlog: 'bg-grey-1',
   'create-update': 'bg-blue-2',
-  'review1': 'bg-orange-2',
-  'review2': 'bg-green-2',
-  'done': 'bg-green-2',
-  'blocked': 'bg-red-2'
+  review1: 'bg-orange-2',
+  review2: 'bg-green-2',
+  done: 'bg-green-2',
+  blocked: 'bg-red-2',
 }
 
 // const getRowClass = (row) => {

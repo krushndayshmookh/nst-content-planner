@@ -6,6 +6,9 @@
       </template>
 
       <q-breadcrumbs-el class="text-grey-7" label="Home" icon="home" to="/" />
+      
+      <q-breadcrumbs-el class="text-grey-7" label="Courses" icon="eva-grid-outline" to="/courses" />
+
       <q-breadcrumbs-el
         v-if="course"
         class="text-grey-7"
@@ -140,11 +143,11 @@
 </template>
 
 <script setup>
-import { ref, computed, /* watch */ } from 'vue'
+import { ref, computed /* watch */ } from 'vue'
 import { useRoute } from 'vue-router'
 // import { useQuasar } from 'quasar'
 import { useCourseStore } from 'src/stores/course-store.js'
-import draggable from 'vuedraggable/src/vuedraggable.js'
+import draggable from 'components/vue.draggable.next/src/vuedraggable.js'
 import TaskCard from 'src/components/TaskCard.vue'
 import CardEditDialog from 'src/components/CardEditDialog.vue'
 

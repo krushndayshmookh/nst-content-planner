@@ -314,11 +314,5 @@ function openCardDetails() {
   border: 1px solid red;
 }
 
-.hoverable {
-  transition: box-shadow 0.3s;
 
-  &:hover {
-    box-shadow: $shadow-7;
-  }
-}
 </style>

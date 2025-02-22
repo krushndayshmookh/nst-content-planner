@@ -1,5 +1,15 @@
 <template>
   <q-page class="q-pa-md">
+    <q-breadcrumbs class="text-primary q-mb-md">
+      <template #separator>
+        <q-icon size="1.5em" name="chevron_right" color="grey-7" />
+      </template>
+
+      <q-breadcrumbs-el class="text-grey-7" label="Home" icon="home" to="/" />
+
+      <q-breadcrumbs-el label="Courses" icon="eva-grid-outline" />
+    </q-breadcrumbs>
+
     <div class="q-mb-md row items-center">
       <div class="col">
         <div class="text-h6">Courses</div>
@@ -9,20 +19,29 @@
       </div>
     </div>
 
-    <q-card>
-      <q-list>
-        <q-item v-for="course in courses" :key="course.id" clickable :to="`/courses/${course.id}`">
-          <q-item-section>
-            <q-item-label>{{ course.title }}</q-item-label>
-            <q-item-label caption>{{ course.description }}</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-icon name="eva-chevron-right" />
-            <!-- <q-item-label caption>{{ course.created_at }}</q-item-label> -->
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-card>
+    <div class="row q-col-gutter-md">
+      <div v-for="course in courses" :key="course.id" class="col-3" style="height: 200px">
+        <q-card
+          class="cursor-pointer hoverable"
+          style="height: 100%; display: flex; flex-direction: column"
+          @click="$router.push(`/courses/${course.id}`)"
+        >
+          <q-card-section style="flex-grow: 1">
+            <div class="text-h6">
+              {{ course.title }}
+              <q-icon name="eva-chevron-right" class="float-right" />
+            </div>
+            <div class="text-subtitle2">{{ course.description }}</div>
+          </q-card-section>
+          <!-- <q-separator />
+          <q-card-section>
+            <div class="text-subtitle2">
+              {{ $humanDate(course.created_at) }}
+            </div>
+          </q-card-section> -->
+        </q-card>
+      </div>
+    </div>
 
     <q-dialog v-model="showCreateCourse" position="right" persistent full-height>
       <q-card style="width: 400px">

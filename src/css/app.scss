@@ -2,3 +2,11 @@
 .full-height {
   height: 100%;
 }
+
+.hoverable {
+  transition: box-shadow 0.3s;
+
+  &:hover {
+    box-shadow: $shadow-7;
+  }
+}

@@ -1,10 +1,21 @@
 <template>
   <q-page class="q-pa-md">
+    <q-breadcrumbs class="text-primary q-mb-md">
+      <template #separator>
+        <q-icon size="1.5em" name="chevron_right" color="grey-7" />
+      </template>
+
+      <q-breadcrumbs-el label="Home" icon="home" />
+    </q-breadcrumbs>
+
     <div class="row">
       <div class="col-3">
-        <q-card class="cursor-pointer" @click="$router.push('/courses')">
+        <q-card class="cursor-pointer hoverable" @click="$router.push('/courses')">
           <q-card-section>
-            <div class="text-h6">Courses</div>
+            <div class="text-h6">
+              Courses
+              <q-icon name="eva-chevron-right" class="float-right" />
+            </div>
           </q-card-section>
         </q-card>
       </div>
