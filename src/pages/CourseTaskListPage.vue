@@ -336,9 +336,9 @@ const openEditCard = (card) => {
 const STATUS_COLORS = {
   backlog: 'bg-grey-1',
   'create-update': 'bg-blue-2',
-  review1: 'bg-orange-2',
+  review1: 'bg-light-green-2',
   review2: 'bg-green-2',
-  done: 'bg-green-2',
+  finished: 'bg-purple-2',
   blocked: 'bg-red-2',
 }
 

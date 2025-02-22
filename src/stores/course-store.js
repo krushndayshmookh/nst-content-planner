@@ -59,7 +59,7 @@ export const useCourseStore = defineStore('course', {
       this.selectedBoard = await pb.collection('boards').getOne(boardId)
       this.selectedBoardCards = await pb.collection('cards').getFullList({
         filter: `(board="${boardId}")`,
-        expand: 'type,creator,reviewer1,reviewer2',
+        expand: 'type,creator,reviewer1,reviewer2,course',
         sort: 'order',
       })
     },

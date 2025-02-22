@@ -6,7 +6,7 @@
       </template>
 
       <q-breadcrumbs-el class="text-grey-7" label="Home" icon="home" to="/" />
-      
+
       <q-breadcrumbs-el class="text-grey-7" label="Courses" icon="eva-grid-outline" to="/courses" />
 
       <q-breadcrumbs-el
@@ -136,7 +136,7 @@
       </q-card-section>
     </q-card>
 
-    <q-dialog v-model="showEditCard" persistent full-height>
+    <q-dialog v-model="showEditCard" full-height>
       <CardEditDialog v-if="showEditCard" />
     </q-dialog>
   </q-page>
