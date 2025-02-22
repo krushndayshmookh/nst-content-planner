@@ -33,6 +33,11 @@ const routes = [
         path: 'courses/:courseId/boards/:boardId',
         component: () => import('pages/CourseBoardPage.vue'),
       },
+      {
+        name: 'course-task-list',
+        path: 'courses/:courseId/boards/:boardId/list',
+        component: () => import('pages/CourseTaskListPage.vue'),
+      },
     ],
   },
 
