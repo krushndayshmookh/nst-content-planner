@@ -3,6 +3,7 @@ import { defineStore, acceptHMRUpdate } from 'pinia'
 export const useGeneralStore = defineStore('general', {
   state: () => ({
     leftDrawerOpen: false,
+    darkMode: false,
   }),
 
   persist: true,
