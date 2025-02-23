@@ -13,9 +13,9 @@
     "dev": "quasar dev",
     "build": "quasar build",
     "postinstall": "quasar prepare",
-    "create-schema": "node scripts/create-schema.js",
-    "create-sample-data": "node scripts/create-sample-data.js",
-    "create-admin": "node scripts/create-admin-user.js",
+    "create-schema": "node scripts/create-schema.cjs",
+    "create-sample-data": "node scripts/create-sample-data.cjs",
+    "create-admin": "node scripts/create-admin-user.cjs",
     "setup-db": "npm run create-schema && npm run create-sample-data && npm run create-admin"
   },
   "dependencies": {

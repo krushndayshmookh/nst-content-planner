@@ -1,0 +1,46 @@
+# Things to do
+
+- [x] update all models
+- [ ] generate fake data
+- [ ] Add model for lecture
+- [ ] Add model for contest
+- [ ] Add model for topic tree card
+- [ ] Add model for assignment
+- [ ] Add model for assessment
+- [ ] add column for contest tracking board
+- [ ] add column for content tracking board
+- [ ] Track actual content
+- [ ] Fetch data from Django backend
+- [ ] Update cards in Pinia store
+- [ ] Track all changes
+- [ ] update list view
+- [ ] Add analytics
+- [ ] Implement dark mode
+- [ ] Add comment mentions feature
+- [ ] Add notifications system
+- [ ] Add email notifications
+- [ ] Create contest configuration system
+- [ ] Create content configuration system
+- [ ] Generate cards from configuration
+- [ ] Add link inputs to all cards
+- [ ] Show number of done items on cards
+- [ ] Show number of unresolved comments on cards
+- [ ] Show progress indicators for cards
+- [ ] Show progress indicators for lectures
+- [ ] Show progress indicators for course
+- [ ] Display team member contribution stats (created, R1, R2)
+- [ ] Add creation count analytics over time
+  - [ ] Filter by team members
+  - [ ] Show on-time vs delayed metrics
+- [ ] Add rule-based review progression buttons
+  - [ ] Create to R1 button with checks
+  - [ ] R1 to R2 button with checks
+- [ ] Add assignment tracking for contests
+- [ ] Add assessment tracking for contests
+- [ ] Enforce D-7 rule for contests
+- [ ] Enforce contest date entry
+- [ ] Review topic tree card reviewer requirements
+- [ ] Implement cross-campus review enforcement for questions
+- [ ] Define admin privileges
+- [ ] Add course-level enforcement toggles (admin only)
+- [x] fix profile fetching issue
