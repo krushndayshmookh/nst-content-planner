@@ -11,6 +11,10 @@
       <q-badge :color="TYPE_COLORS.bg" :text-color="TYPE_COLORS.text" style="max-width: 100%">
         <span class="ellipsis">{{ courseComponent }}</span>
       </q-badge>
+
+      <q-badge v-if="props.card.assignment_type" color="secondary" style="max-width: 100%">
+        <span class="ellipsis">{{ props.card.assignment_type }}</span>
+      </q-badge>
     </div>
 
     <q-item class="q-px-sm">
