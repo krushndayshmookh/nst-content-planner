@@ -11,7 +11,7 @@
 - [x] add column for content tracking board
 - [ ] Track actual content
 - [ ] Fetch data from Django backend
-- [ ] Update cards in Pinia store
+- [x] Update cards in Pinia store
 - [ ] Track all changes
 - [ ] update list view
 - [ ] Add analytics
@@ -45,3 +45,9 @@
 - [ ] Define admin privileges
 - [ ] Add course-level enforcement toggles (admin only)
 - [x] fix profile fetching issue
+- [ ] dashboard for logged in users
+  - [ ] show number of cards to be worked on
+
+
+
+- [ ] add content-type field to card

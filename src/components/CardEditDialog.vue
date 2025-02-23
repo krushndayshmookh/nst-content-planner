@@ -15,6 +15,7 @@
     <div class="row">
       <div class="col-8">
         <q-scroll-area :style="`height: ${heightOfScrollArea}px`">
+          <!-- <pre>{{ card }}</pre> -->
           <!-- Add title and description editors -->
           <div class="q-pa-md">
             <div
@@ -63,6 +64,68 @@
                 the editor to save.
               </div>
             </div>
+          </div>
+
+          <div v-if="cardQuestions.length" class="q-px-md">
+            <q-list bordered separator>
+              <q-item
+                v-for="question in cardQuestions"
+                :key="question.id"
+                :class="{
+                  'bg-green-1': question.is_reviewed,
+                  'bg-red-1': !question.question_id,
+                  'bg-yellow-1': question.question_id && !question.is_reviewed,
+                }"
+              >
+                <q-item-section class="col-4">
+                  <q-input
+                    v-model="question.question_id"
+                    placeholder="Django ID"
+                    outlined
+                    dense
+                    @update:model-value="(val) => handleQuestionInput(val, question)"
+                  />
+                </q-item-section>
+                <q-item-section v-if="question.is_reviewed">
+                  <q-item-label>
+                    <q-icon name="eva-checkmark-circle-outline" color="positive" /> Reviewed
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section v-else>
+                  <q-item-label>
+                    <q-icon name="eva-checkmark-circle-outline" color="grey" /> Not Reviewed
+                  </q-item-label>
+                </q-item-section>
+
+                <q-item-section v-if="!question.is_reviewed" side>
+                  <q-btn
+                    round
+                    flat
+                    dense
+                    icon="eva-refresh-outline"
+                    color="grey"
+                    disable
+                    @click="updateQuestion(question)"
+                  >
+                    <q-tooltip>Check for Updates</q-tooltip>
+                  </q-btn>
+                </q-item-section>
+
+                <q-item-section side>
+                  <q-btn
+                    round
+                    flat
+                    dense
+                    icon="eva-eye-outline"
+                    :color="question.question_id ? 'primary' : 'grey'"
+                    :disable="!question.question_id"
+                    @click="openQuestion(question)"
+                  >
+                    <q-tooltip>Open Question</q-tooltip>
+                  </q-btn>
+                </q-item-section>
+              </q-item>
+            </q-list>
           </div>
 
           <!-- <q-separator /> -->
@@ -537,9 +600,55 @@ const fetchTeamMembers = async () => {
   teamMembers.value = users.filter((user) => team.members.includes(user.id))
 }
 
+const cardQuestions = ref([])
+
+const fetchCardQuestions = async () => {
+  if (card.question_count) {
+    let filter = card.lecture ? `lecture="${card.lecture}"` : `contest="${card.contest}"`
+    filter += ` && type="${card.assignment_type}"`
+
+    const questions = await pb.collection('questions').getFullList({
+      filter,
+    })
+
+    cardQuestions.value = questions
+  }
+}
+
 onMounted(() => {
   fetchTeamMembers()
+  fetchCardQuestions()
 })
+
+const handleQuestionInput = debounce(async (questionId, question) => {
+  try {
+    await pb.collection('questions').update(question.id, {
+      question_id: questionId,
+    })
+  } catch (err) {
+    console.error('Failed to update question:', err)
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to update question ID',
+    })
+  }
+}, 500)
+
+const updateQuestion = (question) => {
+  console.log(question)
+}
+
+const openQuestion = (question) => {
+  console.log(question)
+  if (question.type === 'MCQs') {
+    const url = `https://django.newtonschool.co/admin/assessments/multiplechoicequestion/${question.question_id}/change/`
+    window.open(url, '_blank')
+  }
+  if (question.type === 'Coding') {
+    const url = `https://django.newtonschool.co/admin/assignments/assignmentquestion/${question.question_id}/change/`
+    window.open(url, '_blank')
+  }
+}
 
 // const updateCard = async () => {
 //   const updatedCard = {
