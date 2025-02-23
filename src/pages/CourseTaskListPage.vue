@@ -54,23 +54,23 @@
               </div>
 
               <div class="col-auto">
-                <q-btn outline color="primary" icon="eva-funnel-outline" label="Filters">
-                  <q-menu>
-                    <q-list>
-                      <q-item v-ripple tag="label">
-                        <q-item-section>
-                          <q-checkbox v-model="showAllColumns" label="Show all columns" />
-                        </q-item-section>
-                      </q-item>
-                      <q-separator />
-                      <q-item v-for="col in columns" :key="col.name" v-ripple tag="label">
-                        <q-item-section>
-                          <q-checkbox v-model="visibleColumns" :val="col.name" :label="col.label" />
-                        </q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-btn>
+                <q-select
+                  v-model="visibleColumns"
+                  :options="columns"
+                  map-options
+                  emit-value
+                  option-label="label"
+                  option-value="name"
+                  placeholder="Columns"
+                  outlined
+                  dense
+                  class="q-mr-md"
+                  multiple
+                  hide-bottom-space
+                  style="width: 200px"
+                  input-class="ellipsis"
+                  :display-value="`${visibleColumns.length}/${columns.length} columns`"
+                />
               </div>
 
               <div class="col-auto">
@@ -103,7 +103,25 @@
           <template #body="props">
             <q-tr :props="props" :class="STATUS_COLORS[props.row.column]">
               <q-td key="lecture" :props="props">
-                {{ props.row.lecture_number }}
+                <div class="row items-center">
+                  <div class="col">
+                    {{
+                      board?.type === 'contest'
+                        ? props.row.expand?.contest?.title
+                        : props.row.expand?.lecture?.title
+                    }}
+                  </div>
+                  <div v-if="isDelayed(props.row)" class="col-auto">
+                    <q-icon
+                      name="eva-alert-triangle-outline"
+                      size="xs"
+                      color="negative"
+                      class="q-ml-sm"
+                    >
+                      <q-tooltip>This card has passed deadlines</q-tooltip>
+                    </q-icon>
+                  </div>
+                </div>
               </q-td>
               <q-td key="component" :props="props">
                 {{ props.row.component }}
@@ -136,14 +154,25 @@
                   @update:model-value="updateCardField(props.row.id, 'creator', $event)"
                 />
               </q-td>
-              <q-td key="creation_deadline" :props="props">
-                <q-input
-                  v-model="props.row.creation_deadline"
-                  borderless
-                  dense
-                  type="date"
-                  @update:model-value="updateCardField(props.row.id, 'creation_deadline', $event)"
-                />
+              <q-td key="creation_deadline" :props="props" class="cursor-pointer">
+                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                  <q-date
+                    v-model="props.row.creation_deadline"
+                    mask="YYYY-MM-DD"
+                    @update:model-value="updateCardField(props.row.id, 'creation_deadline', $event)"
+                  />
+                </q-popup-proxy>
+                <div class="row items-center">
+                  <div
+                    class="col"
+                    :class="{ 'text-negative': isDateDelayed(props.row.creation_deadline) }"
+                  >
+                    {{ formatDate(props.row.creation_deadline) }}
+                  </div>
+                  <div class="col-auto">
+                    <q-icon name="event" size="xs" color="grey-7" />
+                  </div>
+                </div>
               </q-td>
               <q-td key="reviewer1" :props="props">
                 <q-select
@@ -159,14 +188,25 @@
                   @update:model-value="updateCardField(props.row.id, 'reviewer1', $event)"
                 />
               </q-td>
-              <q-td key="r1_deadline" :props="props">
-                <q-input
-                  v-model="props.row.r1_deadline"
-                  borderless
-                  dense
-                  type="date"
-                  @update:model-value="updateCardField(props.row.id, 'r1_deadline', $event)"
-                />
+              <q-td key="r1_deadline" :props="props" class="cursor-pointer">
+                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                  <q-date
+                    v-model="props.row.r1_deadline"
+                    mask="YYYY-MM-DD"
+                    @update:model-value="updateCardField(props.row.id, 'r1_deadline', $event)"
+                  />
+                </q-popup-proxy>
+                <div class="row items-center">
+                  <div
+                    class="col"
+                    :class="{ 'text-negative': isDateDelayed(props.row.r1_deadline) }"
+                  >
+                    {{ formatDate(props.row.r1_deadline) }}
+                  </div>
+                  <div class="col-auto">
+                    <q-icon name="event" size="xs" color="grey-7" />
+                  </div>
+                </div>
               </q-td>
               <q-td key="reviewer2" :props="props">
                 <q-select
@@ -182,14 +222,25 @@
                   @update:model-value="updateCardField(props.row.id, 'reviewer2', $event)"
                 />
               </q-td>
-              <q-td key="r2_deadline" :props="props">
-                <q-input
-                  v-model="props.row.r2_deadline"
-                  borderless
-                  dense
-                  type="date"
-                  @update:model-value="updateCardField(props.row.id, 'r2_deadline', $event)"
-                />
+              <q-td key="r2_deadline" :props="props" class="cursor-pointer">
+                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                  <q-date
+                    v-model="props.row.r2_deadline"
+                    mask="YYYY-MM-DD"
+                    @update:model-value="updateCardField(props.row.id, 'r2_deadline', $event)"
+                  />
+                </q-popup-proxy>
+                <div class="row items-center">
+                  <div
+                    class="col"
+                    :class="{ 'text-negative': isDateDelayed(props.row.r2_deadline) }"
+                  >
+                    {{ formatDate(props.row.r2_deadline) }}
+                  </div>
+                  <div class="col-auto">
+                    <q-icon name="event" size="xs" color="grey-7" />
+                  </div>
+                </div>
               </q-td>
               <q-td key="actions" :props="props">
                 <q-btn
@@ -209,19 +260,20 @@
       </q-card-section>
     </q-card>
 
-    <q-dialog v-model="showEditCard" persistent full-height>
+    <q-dialog v-model="showEditCard" full-height>
       <CardEditDialog v-if="showEditCard" />
     </q-dialog>
   </q-page>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useCourseStore } from 'src/stores/course-store.js'
 import { useUserStore } from 'src/stores/user-store.js'
 import CardEditDialog from 'src/components/CardEditDialog.vue'
+import { storeToRefs } from 'pinia'
 
 const route = useRoute()
 const $q = useQuasar()
@@ -231,47 +283,93 @@ const userStore = useUserStore()
 const courseId = computed(() => route.params.courseId)
 const boardId = computed(() => route.params.boardId)
 
-const course = computed(() => courseStore.selectedCourse)
-const board = computed(() => courseStore.selectedBoard)
-const boardColumns = computed(() => courseStore.selectedBoard.columns)
-const boardCards = computed(() => courseStore.selectedBoardCards)
+// Use storeToRefs for better reactivity
+const {
+  selectedCourse: course,
+  selectedBoard: board,
+  selectedBoardCards: boardCards,
+} = storeToRefs(courseStore)
+const boardColumns = computed(() => courseStore.selectedBoard?.columns || [])
+
 const teamMembers = ref([])
-
 const filter = ref('')
-const showAllColumns = ref(true)
 
-const columns = [
-  { name: 'lecture', label: 'Lecture', field: 'lecture', align: 'left', sortable: true },
+const isDelayed = (row) => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const deadlines = [row.creation_deadline, row.r1_deadline, row.r2_deadline]
+
+  return deadlines.some((deadline) => {
+    if (!deadline) return false
+    const d = new Date(deadline)
+    d.setHours(0, 0, 0, 0)
+    return d < today
+  })
+}
+
+const isDateDelayed = (date) => {
+  if (!date) return false
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+  return d < today
+}
+
+const columns = computed(() => [
+  {
+    name: 'lecture',
+    label: board.value?.type === 'contest' ? 'Contest' : 'Lecture',
+    field: (row) =>
+      board.value?.type === 'contest' ? row.expand?.contest?.title : row.expand?.lecture?.title,
+    align: 'left',
+    sortable: true,
+  },
   { name: 'component', label: 'Component', field: 'component', align: 'left', sortable: true },
   { name: 'status', label: 'Status', field: 'column', align: 'left', sortable: true },
   { name: 'creator', label: 'Creator', field: 'creator', align: 'left', sortable: true },
-  { name: 'reviewer1', label: 'Reviewer 1', field: 'reviewer1', align: 'left', sortable: true },
-  { name: 'reviewer2', label: 'Reviewer 2', field: 'reviewer2', align: 'left', sortable: true },
   {
     name: 'creation_deadline',
     label: 'Creation Deadline',
     field: 'creation_deadline',
     align: 'left',
     sortable: true,
+    format: (val) => formatDate(val),
   },
+  { name: 'reviewer1', label: 'Reviewer 1', field: 'reviewer1', align: 'left', sortable: true },
   {
     name: 'r1_deadline',
     label: 'R1 Deadline',
     field: 'r1_deadline',
     align: 'left',
     sortable: true,
+    format: (val) => formatDate(val),
   },
+  { name: 'reviewer2', label: 'Reviewer 2', field: 'reviewer2', align: 'left', sortable: true },
   {
     name: 'r2_deadline',
     label: 'R2 Deadline',
     field: 'r2_deadline',
     align: 'left',
     sortable: true,
+    format: (val) => formatDate(val),
   },
   { name: 'actions', label: 'Actions', field: 'actions', align: 'center' },
-]
+])
 
-const visibleColumns = ref(columns.map((col) => col.name))
+const visibleColumns = ref([])
+
+// Initialize visible columns after columns are computed
+watch(
+  columns,
+  (newColumns) => {
+    if (visibleColumns.value.length === 0) {
+      visibleColumns.value = newColumns.map((col) => col.name)
+    }
+  },
+  { immediate: true },
+)
 
 const showEditCard = ref(false)
 
@@ -333,6 +431,12 @@ const openEditCard = (card) => {
   showEditCard.value = true
 }
 
+watch(showEditCard, (value) => {
+  if (!value) {
+    courseStore.groupCardsByColumns()
+  }
+})
+
 const STATUS_COLORS = {
   backlog: 'bg-grey-1',
   'create-update': 'bg-blue-2',
@@ -340,6 +444,17 @@ const STATUS_COLORS = {
   review2: 'bg-green-2',
   finished: 'bg-purple-2',
   blocked: 'bg-red-2',
+}
+
+const formatDate = (date) => {
+  if (!date) return ''
+  if (date instanceof Date) {
+    return date.toISOString().split('T')[0]
+  }
+  // Handle string dates
+  const d = new Date(date)
+  if (isNaN(d.getTime())) return ''
+  return d.toISOString().split('T')[0]
 }
 </script>
 
