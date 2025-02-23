@@ -15,7 +15,9 @@
 
     <q-item class="q-px-sm">
       <q-item-section side>
-        <div class="text-body1 text-weight-medium">{{ props.card.expand?.lecture?.title || props.card.expand?.contest?.title }}</div>
+        <div class="text-body1 text-weight-medium">
+          {{ props.card.expand?.lecture?.title || props.card.expand?.contest?.title }}
+        </div>
       </q-item-section>
 
       <q-item-section>
@@ -242,7 +244,7 @@ const contextMenuOpen = ref(false)
 
 const courseComponent = props.card.component
 
-const TYPE_COLORS = {
+const TYPE_COLORS_SRC = {
   'Lecture Outline': {
     bg: 'light-green-2',
     text: 'light-green-10',
@@ -255,23 +257,15 @@ const TYPE_COLORS = {
     bg: 'green-2',
     text: 'green-10',
   },
-  'In-class MCQs': {
+  'In-class': {
     bg: 'blue-2',
     text: 'blue-10',
   },
-  'Post-class MCQs': {
+  'Post-class': {
     bg: 'light-blue-2',
     text: 'light-blue-10',
   },
-  'In-class Coding Questions': {
-    bg: 'amber-2',
-    text: 'amber-10',
-  },
-  'Post-class Coding Questions': {
-    bg: 'deep-orange-2',
-    text: 'deep-orange-10',
-  },
-  'Lab Coding Questions': {
+  Lab: {
     bg: 'red-2',
     text: 'red-10',
   },
@@ -284,7 +278,12 @@ const TYPE_COLORS = {
     bg: 'gray-2',
     text: 'gray-10',
   },
-}[courseComponent || 'default']
+}
+
+const TYPE_COLORS =
+  TYPE_COLORS_SRC[
+    Object.keys(TYPE_COLORS_SRC).includes(courseComponent) ? courseComponent : 'default'
+  ]
 
 // card has three dates: creation_deadline, r1_deadline, r2_deadline
 // if the status is create/update and the creation_deadline is passed, the card is delayed
@@ -313,6 +312,4 @@ function openCardDetails() {
 .red-outline {
   border: 1px solid red;
 }
-
-
 </style>

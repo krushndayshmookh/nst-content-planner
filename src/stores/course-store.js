@@ -147,6 +147,12 @@ export const useCourseStore = defineStore('course', {
       if (cardIndex !== -1) {
         this.selectedBoardCards[cardIndex] = record
       }
+      // update selectedCard
+      if (this.selectedCard && this.selectedCard.id === cardId) {
+        this.selectedCard = await pb.collection('cards').getOne(cardId, {
+          expand: 'creator,reviewer1,reviewer2,course,lecture,contest',
+        })
+      }
       return record
     },
 

@@ -143,7 +143,7 @@
 </template>
 
 <script setup>
-import { ref, computed /* watch */ } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 // import { useQuasar } from 'quasar'
 import { useCourseStore } from 'src/stores/course-store.js'
@@ -206,6 +206,7 @@ const onDragEnd = async (event) => {
   const { item, from, to } = event
   const cardId = item._underlying_vm_.id
   const newColumnId = to.closest('[data-column-id]').dataset.columnId
+
   const oldColumnId = from.closest('[data-column-id]').dataset.columnId
 
   if (newColumnId !== oldColumnId) {
@@ -213,7 +214,7 @@ const onDragEnd = async (event) => {
   }
 
   // update local state
-  const idx = cardsByColumns.value[newColumnId].findIndex((card) => card.id !== cardId)
+  const idx = cardsByColumns.value[newColumnId].findIndex((card) => card.id === cardId)
   cardsByColumns.value[newColumnId][idx].column = newColumnId
 }
 
@@ -226,15 +227,17 @@ const openEditCard = (card) => {
   showEditCard.value = true
 }
 
-// watch(showEditCard, (value) => {
-//   if (!value) {
-//     //  then update the UI below
-//     const card = courseStore.selectedCard
+// const instance = getCurrentInstance()
 
-//     const cardOnUIIdx = cardsByColumns.value[card.column].findIndex((c) => c.id === card.id)
-//     cardsByColumns.value[card.column][cardOnUIIdx] = courseStore.selectedCard
-//   }
-// })
+watch(showEditCard, (value) => {
+  if (!value) {
+    //  then update the UI below
+    const card = courseStore.selectedCard
+
+    const cardOnUIIdx = cardsByColumns.value[card.column].findIndex((c) => c.id === card.id)
+    cardsByColumns.value[card.column][cardOnUIIdx] = courseStore.selectedCard
+  }
+})
 </script>
 
 <style scoped>
