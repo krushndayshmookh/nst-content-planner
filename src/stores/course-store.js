@@ -64,6 +64,67 @@ export const useCourseStore = defineStore('course', {
         .getFullList({ filter: `(course="${courseId}")` })
     },
 
+    async createBoard(data) {
+      const record = await pb.collection('boards').create(data)
+      this.selectedCourseBoards.push(record)
+      return record
+    },
+
+    async createLecture(data) {
+      return await pb.collection('lectures').create(data)
+    },
+
+    async createCard(data) {
+      return await pb.collection('cards').create(data)
+    },
+
+    async createQuestion(data) {
+      return await pb.collection('questions').create(data)
+    },
+
+    async createBulkLectures(lectures) {
+      const batch = pb.createBatch()
+
+      for (const lecture of lectures) {
+        batch.collection('lectures').create(lecture)
+      }
+
+      return await batch.send()
+    },
+
+    async createBulkContests(contests) {
+      const batch = pb.createBatch()
+      console.log('Creating contests:', contests)
+
+      for (const contest of contests) {
+        batch.collection('contests').create(contest)
+      }
+
+      const result = await batch.send()
+      console.log('Batch result:', result)
+      return result
+    },
+
+    async createBulkCards(cards) {
+      const batch = pb.createBatch()
+
+      for (const card of cards) {
+        batch.collection('cards').create(card)
+      }
+
+      return await batch.send()
+    },
+
+    async createBulkQuestions(questions) {
+      const batch = pb.createBatch()
+
+      for (const question of questions) {
+        batch.collection('questions').create(question)
+      }
+
+      return await batch.send()
+    },
+
     async fetchBoard(boardId) {
       this.selectedBoard = await pb.collection('boards').getOne(boardId)
       this.selectedBoardCards = await pb.collection('cards').getFullList({

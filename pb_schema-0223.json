@@ -125,9 +125,7 @@
     },
     "passwordAuth": {
       "enabled": true,
-      "identityFields": [
-        "email"
-      ]
+      "identityFields": ["email"]
     },
     "mfa": {
       "enabled": false,
@@ -270,13 +268,7 @@
         "id": "file376926767",
         "maxSelect": 1,
         "maxSize": 0,
-        "mimeTypes": [
-          "image/jpeg",
-          "image/png",
-          "image/svg+xml",
-          "image/gif",
-          "image/webp"
-        ],
+        "mimeTypes": ["image/jpeg", "image/png", "image/svg+xml", "image/gif", "image/webp"],
         "name": "avatar",
         "presentable": false,
         "protected": false,
@@ -331,9 +323,7 @@
     },
     "passwordAuth": {
       "enabled": true,
-      "identityFields": [
-        "email"
-      ]
+      "identityFields": ["email"]
     },
     "mfa": {
       "enabled": false,
@@ -820,10 +810,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "lecture",
-          "contest"
-        ]
+        "values": ["lecture", "contest"]
       },
       {
         "cascadeDelete": true,
@@ -1317,10 +1304,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "MCQs",
-          "Coding"
-        ]
+        "values": ["MCQs", "Coding"]
       },
       {
         "hidden": false,
@@ -2036,10 +2020,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "user",
-          "admin"
-        ]
+        "values": ["user", "admin"]
       },
       {
         "hidden": false,
@@ -2050,10 +2031,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "ADYPU",
-          "RU"
-        ]
+        "values": ["ADYPU", "RU"]
       },
       {
         "exceptDomains": null,
@@ -2104,7 +2082,7 @@
         "pattern": "",
         "presentable": false,
         "primaryKey": false,
-        "required": true,
+        "required": false,
         "system": false,
         "type": "text"
       },
@@ -2117,10 +2095,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "MCQs",
-          "Coding"
-        ]
+        "values": ["MCQs", "Coding"]
       },
       {
         "hidden": false,

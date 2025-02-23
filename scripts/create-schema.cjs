@@ -3,15 +3,13 @@ const PocketBase = require('pocketbase/cjs')
 
 const pb = new PocketBase(process.env.POCKETBASE_URL || 'http://127.0.0.1:8090')
 
-const CARD_TYPES = [
+const COMPONENT_TYPES = [
   'Lecture Outline',
   'Lab Outline',
   'Presentation',
-  'In-class MCQs',
-  'Post-class MCQs',
-  'In-class Coding Qs',
-  'Post-class Coding Qs',
-  'Lab Coding Qs',
+  'In-class',
+  'Post-class',
+  'Lab',
   'Contest',
 ]
 
@@ -33,39 +31,28 @@ const CARD_CONTENT = [
     type: 'text',
   },
 
-  // for MCQs & Coding Qs
+  // for questions
   {
-    name: 'mc_question_count',
+    name: 'question_count',
     type: 'number',
   },
   {
-    name: 'mc_questions',
+    name: 'questions',
     type: 'relation',
     collectionId: 'to-replace-with-questions-id',
     cascadeDelete: false,
     maxSelect: 999,
   },
   {
-    name: 'coding_question_count',
-    type: 'number',
-  },
-  {
-    name: 'coding_questions',
-    type: 'relation',
-    collectionId: 'to-replace-with-questions-id',
-    cascadeDelete: false,
-    maxSelect: 999,
+    name: 'assignment_type',
+    type: 'select',
+    values: ['MCQs', 'Coding', 'AI Mock Interview'],
   },
 
   // for Contest
   {
     name: 'assignment_link',
     type: 'text',
-  },
-  {
-    name: 'assignment_type',
-    type: 'select',
-    values: ['MCQs', 'Coding'],
   },
   {
     name: 'assignment_is_verified',
@@ -437,7 +424,6 @@ async function createSchema() {
         {
           name: 'question_id',
           type: 'text',
-          required: true,
         },
         {
           name: 'type',
@@ -529,11 +515,8 @@ async function createSchema() {
 
     console.log('✓ Created questions collection')
 
-    const mcqIdx = CARD_CONTENT.findIndex((card) => card.name === 'mc_questions')
-    const codingIdx = CARD_CONTENT.findIndex((card) => card.name === 'coding_questions')
-
-    CARD_CONTENT[mcqIdx].collectionId = questions.id
-    CARD_CONTENT[codingIdx].collectionId = questions.id
+    const questionIdx = CARD_CONTENT.findIndex((card) => card.name === 'questions')
+    CARD_CONTENT[questionIdx].collectionId = questions.id
 
     // Create cards collection
     const cards = await pb.collections.create({
@@ -567,7 +550,7 @@ async function createSchema() {
           name: 'component',
           type: 'select',
           required: true,
-          values: CARD_TYPES,
+          values: COMPONENT_TYPES,
           maxSelect: 1,
         },
         {
