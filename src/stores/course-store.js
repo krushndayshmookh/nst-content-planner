@@ -33,13 +33,22 @@ export const useCourseStore = defineStore('course', {
     },
 
     async createCourse(data) {
-      await pb.collection('courses').create({
+      // Create the course
+      const course = await pb.collection('courses').create({
         ...data,
         created_at: new Date().toISOString(),
         created_by: pb.authStore.record.id,
         scrum_masters: JSON.stringify([pb.authStore.record.id]),
       })
+
+      // Create an empty team for the course
+      await pb.collection('course_teams').create({
+        course: course.id,
+        members: [],
+      })
+
       this.fetchCourses()
+      return course
     },
 
     async updateCourse(courseId, data) {
