@@ -59,7 +59,7 @@ export const useCourseStore = defineStore('course', {
       this.selectedBoard = await pb.collection('boards').getOne(boardId)
       this.selectedBoardCards = await pb.collection('cards').getFullList({
         filter: `(board="${boardId}")`,
-        expand: 'type,creator,reviewer1,reviewer2,course',
+        expand: 'creator,reviewer1,reviewer2,course,lecture,contest',
         sort: 'order',
       })
     },
@@ -73,7 +73,7 @@ export const useCourseStore = defineStore('course', {
       console.log('updateCard', cardId, data)
       const record = await pb.collection('cards').update(cardId, data)
       // Refresh the card in the local state
-      const cardIndex = this.selectedBoardCards.findIndex(card => card.id === cardId)
+      const cardIndex = this.selectedBoardCards.findIndex((card) => card.id === cardId)
       if (cardIndex !== -1) {
         this.selectedBoardCards[cardIndex] = record
       }
@@ -90,8 +90,15 @@ export const useCourseStore = defineStore('course', {
     async addTeamMembers(courseId, memberIds) {
       // First try to get existing team
       try {
-        const existingTeam = await pb.collection('course_teams').getFirstListItem(`course="${courseId}"`)
+        const existingTeam = await pb
+          .collection('course_teams')
+          .getFirstListItem(`course="${courseId}"`)
         // Update existing team with new members
+
+        if (!Array.isArray(existingTeam.members)) {
+          existingTeam.members = [existingTeam.members]
+        }
+
         const updatedMembers = [...new Set([...existingTeam.members, ...memberIds])]
         await pb.collection('course_teams').update(existingTeam.id, {
           members: updatedMembers,
@@ -108,7 +115,7 @@ export const useCourseStore = defineStore('course', {
 
     async removeTeamMember(courseId, memberId) {
       const team = await pb.collection('course_teams').getFirstListItem(`course="${courseId}"`)
-      const updatedMembers = team.members.filter(id => id !== memberId)
+      const updatedMembers = team.members.filter((id) => id !== memberId)
       await pb.collection('course_teams').update(team.id, {
         members: updatedMembers,
       })

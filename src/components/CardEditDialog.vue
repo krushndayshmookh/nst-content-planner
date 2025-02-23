@@ -129,8 +129,8 @@
                             <span class="text-caption q-ml-sm text-grey">
                               {{ formatTimeAgo(comment.created_at) }}
                             </span>
-                            <span v-if="comment.is_reply" class="text-caption q-ml-sm text-grey">
-                              replied to
+                            <span v-if="comment.is_reply" class="text-caption text-grey">
+                              &bull; replied to
                               <a
                                 href="#"
                                 class="text-primary"
@@ -208,7 +208,9 @@
                   <q-icon name="eva-book-outline" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label>{{ card.lecture_number }}</q-item-label>
+                  <q-item-label>{{
+                    card.expand?.lecture?.title || card.expand?.contest?.title
+                  }}</q-item-label>
                 </q-item-section>
               </q-item>
               <q-separator />
@@ -217,7 +219,7 @@
                   <q-icon name="eva-pricetags-outline" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label>{{ card.expand?.type?.title }}</q-item-label>
+                  <q-item-label>{{ card.component }}</q-item-label>
                 </q-item-section>
               </q-item>
               <q-separator />
@@ -554,7 +556,7 @@ onMounted(() => {
 // }
 
 // const heightOfScrollArea = window.innerHeight - (48 + 64 + 68.01 + 2 + 4) // 48 is space around dialog,  64 is header height, 68.01 is footer height, 2 is separators height, 4 is buffer
-const heightOfScrollArea = window.innerHeight - (48) // 48 is space around dialog,  64 is header height, 1 is separators height // this is when we dont have card header or footer
+const heightOfScrollArea = window.innerHeight - 48 // 48 is space around dialog,  64 is header height, 1 is separators height // this is when we dont have card header or footer
 
 // Add new refs for local state
 const localTitle = ref(card.title || '')

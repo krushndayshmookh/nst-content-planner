@@ -15,7 +15,7 @@
 
     <q-item class="q-px-sm">
       <q-item-section side>
-        <div class="text-body1 text-weight-medium">{{ props.card.lecture_number }}</div>
+        <div class="text-body1 text-weight-medium">{{ props.card.expand?.lecture?.title || props.card.expand?.contest?.title }}</div>
       </q-item-section>
 
       <q-item-section>

@@ -43,6 +43,7 @@ const CARD_CONTENT = [
     type: 'relation',
     collectionId: 'to-replace-with-questions-id',
     cascadeDelete: false,
+    maxSelect: 999,
   },
   {
     name: 'coding_question_count',
@@ -53,6 +54,7 @@ const CARD_CONTENT = [
     type: 'relation',
     collectionId: 'to-replace-with-questions-id',
     cascadeDelete: false,
+    maxSelect: 999,
   },
 
   // for Contest
@@ -76,6 +78,27 @@ const CARD_CONTENT = [
 ]
 
 const CONTEST_TYPES = Object.keys(CONTEST_TYPE_SETS)
+
+const LECTURE_COLUMNS = [
+  { id: 'backlog', title: 'Backlog' },
+  { id: 'create-update', title: 'Create/Update' },
+  { id: 'review1', title: 'Review 1' },
+  { id: 'review2', title: 'Review 2' },
+  { id: 'finished', title: 'Finished' },
+]
+
+const CONTEST_COLUMNS = [
+  { id: 'backlog', title: 'Backlog' },
+  { id: 'create-update', title: 'Question Create/Update' },
+  { id: 'review1', title: 'Review 1' },
+  { id: 'review2', title: 'Review 2' },
+  { id: 'ready', title: 'Question Ready' },
+  { id: 'assignment-ready', title: 'Assignment Ready' },
+  { id: 'executed', title: 'Executed' },
+]
+
+exports.LECTURE_COLUMNS = LECTURE_COLUMNS
+exports.CONTEST_COLUMNS = CONTEST_COLUMNS
 
 async function cleanUp() {
   const collectionsToDelete = [
@@ -135,12 +158,14 @@ async function createSchema() {
           required: true,
           collectionId: '_pb_users_auth_',
           cascadeDelete: true,
+          maxSelect: 1,
         },
         {
           name: 'role',
           type: 'select',
           values: ['user', 'admin'],
           required: true,
+          maxSelect: 1,
         },
         {
           name: 'campus',
@@ -177,17 +202,21 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'created_at',
-          type: 'date',
-          required: true,
+          type: 'autodate',
+          onCreate: true,
+          onUpdate: false,
         },
+
         {
           name: 'scrum_masters',
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 999,
         },
       ],
       listRule: '',
@@ -216,6 +245,7 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 999,
         },
         {
           name: 'created_at',
@@ -300,6 +330,21 @@ async function createSchema() {
           maxSelect: 1,
         },
         {
+          name: 'contest_date',
+          type: 'date',
+        },
+        {
+          name: 'contest_ready_at',
+          type: 'date',
+        },
+        {
+          name: 'contest_owner',
+          type: 'relation',
+          collectionId: '_pb_users_auth_',
+          cascadeDelete: false,
+          maxSelect: 1,
+        },
+        {
           name: 'created_at',
           type: 'autodate',
           onCreate: true,
@@ -344,6 +389,7 @@ async function createSchema() {
           required: true,
           collectionId: courses.id,
           cascadeDelete: true,
+          maxSelect: 1,
         },
         {
           name: 'columns',
@@ -355,6 +401,7 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'created_at',
@@ -402,6 +449,7 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'final_reviewed_at',
@@ -412,6 +460,7 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'initial_review_deadline',
@@ -426,16 +475,32 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'initial_creator',
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'initial_creation_deadline',
           type: 'date',
+        },
+        {
+          name: 'lecture',
+          type: 'relation',
+          collectionId: lectures.id,
+          cascadeDelete: false,
+          maxSelect: 1,
+        },
+        {
+          name: 'contest',
+          type: 'relation',
+          collectionId: contests.id,
+          cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'created_at',
@@ -475,6 +540,7 @@ async function createSchema() {
           required: true,
           collectionId: courses.id,
           cascadeDelete: true,
+          maxSelect: 1,
         },
         {
           name: 'lecture',
@@ -522,12 +588,14 @@ async function createSchema() {
             'Final',
             'Blocked',
           ],
+          maxSelect: 1,
         },
         {
           name: 'creator',
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'creation_deadline',
@@ -538,6 +606,7 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'initial_creation_deadline',
@@ -548,6 +617,7 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'r1_deadline',
@@ -558,6 +628,7 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'initial_r1_deadline',
@@ -568,6 +639,7 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'r2_deadline',
@@ -578,6 +650,7 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'initial_r2_deadline',
@@ -601,6 +674,7 @@ async function createSchema() {
           required: true,
           collectionId: boards.id,
           cascadeDelete: true,
+          maxSelect: 1,
         },
         {
           name: 'column',
@@ -654,6 +728,7 @@ async function createSchema() {
           required: true,
           collectionId: cards.id,
           cascadeDelete: true,
+          maxSelect: 1,
         },
         {
           name: 'user',
@@ -661,6 +736,7 @@ async function createSchema() {
           required: true,
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 1,
         },
         {
           name: 'content',
@@ -672,6 +748,7 @@ async function createSchema() {
           type: 'relation',
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
+          maxSelect: 999,
         },
         {
           name: 'resolved',
@@ -753,7 +830,6 @@ async function createSchema() {
           collectionId: '_pb_users_auth_',
           cascadeDelete: false,
           maxSelect: 1,
-          minSelect: 1,
         },
       ],
       listRule: '',
