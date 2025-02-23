@@ -30,16 +30,19 @@ const getSampleProfiles = (users) => {
   return [
     {
       user: users[0].id,
+      email: users[0].email,
       role: 'admin',
       campus: 'ADYPU',
     },
     {
       user: users[1].id,
+      email: users[1].email,
       role: 'user',
       campus: 'ADYPU',
     },
     {
       user: users[2].id,
+      email: users[2].email,
       role: 'user',
       campus: 'RU',
     },
@@ -229,7 +232,7 @@ async function createSampleData() {
     for (const contentBoard of contentBoards) {
       await pb.collection('boards').create(contentBoard)
     }
-    
+
     contestBoards = await pb.collection('boards').getFullList({
       filter: `(type="contest")`,
     })

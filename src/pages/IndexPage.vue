@@ -8,12 +8,23 @@
       <q-breadcrumbs-el label="Home" icon="home" />
     </q-breadcrumbs>
 
-    <div class="row">
+    <div class="row q-col-gutter-md">
       <div class="col-3">
         <q-card class="cursor-pointer hoverable" @click="$router.push('/courses')">
           <q-card-section>
             <div class="text-h6">
               Courses
+              <q-icon name="eva-chevron-right" class="float-right" />
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <div class="col-3">
+        <q-card class="cursor-pointer hoverable" @click="$router.push('/users')">
+          <q-card-section>
+            <div class="text-h6">
+              Users
               <q-icon name="eva-chevron-right" class="float-right" />
             </div>
           </q-card-section>

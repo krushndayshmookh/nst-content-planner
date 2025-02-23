@@ -161,6 +161,11 @@ async function createSchema() {
           maxSelect: 1,
         },
         {
+          name: 'email',
+          type: 'text',
+          required: true,
+        },
+        {
           name: 'role',
           type: 'select',
           values: ['user', 'admin'],
