@@ -16,7 +16,8 @@
     "create-schema": "node scripts/create-schema.cjs",
     "create-sample-data": "node scripts/create-sample-data.cjs",
     "create-admin": "node scripts/create-admin-user.cjs",
-    "setup-db": "npm run create-schema && npm run create-sample-data && npm run create-admin"
+    "setup-db": "npm run create-schema && npm run create-sample-data && npm run create-admin",
+    "start": "quasar serve"
   },
   "dependencies": {
     "@quasar/extras": "^1.16.4",
