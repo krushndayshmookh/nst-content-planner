@@ -2,21 +2,22 @@
 
 - [x] update all models
 - [ ] generate fake data
-- [ ] Add model for lecture
-- [ ] Add model for contest
+- [x] Add model for lecture
+- [x] Add model for contest
 - [ ] Add model for topic tree card
 - [ ] Add model for assignment
 - [ ] Add model for assessment
-- [ ] add column for contest tracking board
-- [ ] add column for content tracking board
+- [x] add column for contest tracking board
+- [x] add column for content tracking board
 - [ ] Track actual content
 - [ ] Fetch data from Django backend
 - [ ] Update cards in Pinia store
 - [ ] Track all changes
 - [ ] update list view
 - [ ] Add analytics
-- [ ] Implement dark mode
-- [ ] Add comment mentions feature
+- [x] Implement dark mode
+- [x] Add comment mentions feature
+- [ ] Update comment mentions feature to show username while typing
 - [ ] Add notifications system
 - [ ] Add email notifications
 - [ ] Create contest configuration system
