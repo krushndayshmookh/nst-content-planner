@@ -14,8 +14,10 @@ export const useCourseStore = defineStore('course', {
     selectedCourseMembers: [],
     selectedBoard: null,
     selectedBoardCards: [],
-
     selectedCard: null,
+    // New state properties
+    selectedColumnIds: [],
+    cardsByColumns: {},
   }),
 
   persist: true,
@@ -23,6 +25,12 @@ export const useCourseStore = defineStore('course', {
   getters: {
     courses() {
       return this.items
+    },
+    columnsToDisplay() {
+      if (!this.selectedBoard?.columns) return []
+      return this.selectedBoard.columns.filter((column) =>
+        this.selectedColumnIds.includes(column.id),
+      )
     },
   },
 
@@ -94,14 +102,13 @@ export const useCourseStore = defineStore('course', {
 
     async createBulkContests(contests) {
       const batch = pb.createBatch()
-      console.log('Creating contests:', contests)
 
       for (const contest of contests) {
         batch.collection('contests').create(contest)
       }
 
       const result = await batch.send()
-      console.log('Batch result:', result)
+
       return result
     },
 
@@ -132,28 +139,73 @@ export const useCourseStore = defineStore('course', {
         expand: 'creator,reviewer1,reviewer2,course,lecture,contest',
         sort: 'order',
       })
+
+      // Initialize selected columns
+      this.selectedColumnIds = this.selectedBoard.columns.map((column) => column.id)
+      this.groupCardsByColumns()
     },
 
-    async updateCardColumn(cardId, columnId) {
-      await pb.collection('cards').update(cardId, { column: columnId })
-      // this.fetchBoard(this.selectedBoard.id)
+    groupCardsByColumns() {
+      const columns = this.selectedBoard?.columns || []
+      const organizedCards = {}
+
+      if (!columns.length) {
+        this.cardsByColumns = organizedCards
+        return
+      }
+
+      for (const column of columns) {
+        organizedCards[column.id] = this.selectedBoardCards.filter(
+          (card) => card.column === column.id,
+        )
+      }
+
+      this.cardsByColumns = organizedCards
+    },
+
+    async updateCardColumn(cardId, newColumnId, oldColumnId) {
+      await pb.collection('cards').update(cardId, { column: newColumnId })
+
+      // Update local state
+      const cardIndex = this.selectedBoardCards.findIndex((card) => card.id === cardId)
+      if (cardIndex !== -1) {
+        this.selectedBoardCards[cardIndex].column = newColumnId
+      }
+
+      // Update cardsByColumns
+      const card = this.cardsByColumns[oldColumnId].find((c) => c.id === cardId)
+      if (card) {
+        this.cardsByColumns[oldColumnId] = this.cardsByColumns[oldColumnId].filter(
+          (c) => c.id !== cardId,
+        )
+        if (!this.cardsByColumns[newColumnId]) {
+          this.cardsByColumns[newColumnId] = []
+        }
+        card.column = newColumnId
+        this.cardsByColumns[newColumnId].push(card)
+      }
     },
 
     async updateCard(cardId, data) {
-      console.log('updateCard', cardId, data)
-      const record = await pb.collection('cards').update(cardId, data)
-      // Refresh the card in the local state
-      const cardIndex = this.selectedBoardCards.findIndex((card) => card.id === cardId)
+      // console.info('updateCard', cardId, data)
+      await pb.collection('cards').update(cardId, data)
+      const updatedCard = await pb.collection('cards').getOne(cardId, {
+        expand: 'creator,reviewer1,reviewer2,course,lecture,contest',
+      })
+
+      // Update the card in selectedBoardCards
+      const cardIndex = this.selectedBoardCards.findIndex((c) => c.id === cardId)
       if (cardIndex !== -1) {
-        this.selectedBoardCards[cardIndex] = record
+        this.selectedBoardCards[cardIndex] = updatedCard
       }
-      // update selectedCard
-      if (this.selectedCard && this.selectedCard.id === cardId) {
-        this.selectedCard = await pb.collection('cards').getOne(cardId, {
-          expand: 'creator,reviewer1,reviewer2,course,lecture,contest',
-        })
+
+      // Update selectedCard if it's the same card
+      if (this.selectedCard?.id === cardId) {
+        this.selectedCard = updatedCard
       }
-      return record
+
+      this.groupCardsByColumns()
+      return updatedCard
     },
 
     async fetchCourseTeam(courseId) {

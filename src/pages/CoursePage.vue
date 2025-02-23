@@ -636,12 +636,10 @@ const createContestBoard = async () => {
       course: courseId.value,
       columns: CONTEST_COLUMNS,
     })
-    console.log('Created board:', board)
 
     // Generate contests
     createProgress.value = 'Creating contests...'
     const contests = getContests(contestBoardConfig.value)
-    console.log('Generated contests:', contests)
 
     const batchResults = await courseStore.createBulkContests(
       contests.map((contest) => ({
@@ -650,23 +648,18 @@ const createContestBoard = async () => {
         board: board.id,
       })),
     )
-    console.log('Contest batch results:', batchResults)
 
     // Extract created contests from batch results
     const createdContests = batchResults.map((result) => result.body)
-    console.log('Created contests:', createdContests)
 
     // Generate cards and questions
     createProgress.value = 'Creating cards and questions...'
-    console.log('Contest config:', contestBoardConfig.value)
+
     const [cardConfigs, questionConfigs] = getCardsForContestBoard(
       board,
       createdContests,
       contestBoardConfig.value,
     )
-
-    console.log('Card configs:', cardConfigs)
-    console.log('Question configs:', questionConfigs)
 
     // Create cards
     await courseStore.createBulkCards(cardConfigs)
@@ -786,19 +779,16 @@ const getContests = (config) => {
 }
 
 const getCardsForContestBoard = (board, contests, config) => {
-  console.log('getCardsForContestBoard input:', { board, contests, config })
   const cards = []
   const questions = []
   for (const contest of contests) {
-    console.log('Processing contest:', contest)
     const contestConfig = config.contestTypes.find((c) => c.name === contest.contest_type)
-    console.log('Found contest config:', contestConfig)
+
     if (!contestConfig) {
       console.warn('No contest config found for contest type:', contest.contest_type)
       continue
     }
     for (const assignmentType of contestConfig.assignmentTypes) {
-      console.log('Processing assignment type:', assignmentType)
       cards.push({
         title: `${contest.title} - ${assignmentType.name}`,
         type: assignmentType.name,

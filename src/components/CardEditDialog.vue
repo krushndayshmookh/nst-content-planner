@@ -225,11 +225,14 @@
               <q-separator />
               <q-item dense class="q-pr-xs q-py-xs">
                 <q-item-section side>
-                  <q-icon :name="COLUMNS_ICONS[card.column]" :color="COLUMN_COLORS[card.column]" />
+                  <q-icon
+                    :name="COLUMNS_ICONS[currentColumn]"
+                    :color="COLUMN_COLORS[currentColumn]"
+                  />
                 </q-item-section>
                 <q-item-section>
                   <q-select
-                    v-model="card.column"
+                    v-model="currentColumn"
                     standout
                     :options="columns"
                     option-label="title"
@@ -460,6 +463,7 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { formatDistanceToNow } from 'date-fns'
 import { pb } from 'src/boot/pocketbase'
+import { LECTURE_COLUMNS, CONTEST_COLUMNS } from 'src/constants.js'
 
 const courseStore = useCourseStore()
 const userStore = useUserStore()
@@ -467,6 +471,9 @@ const route = useRoute()
 const $q = useQuasar()
 const card = courseStore.selectedCard
 const teamMembers = ref([])
+
+// Add local column state
+const currentColumn = ref(card.column)
 
 const creator = ref(card.creator || null)
 const reviewer1 = ref(card.reviewer1 || null)
@@ -699,6 +706,7 @@ const handleDateChange = async (field) => {
 
 // column change handler
 const handleColumnChange = async (column) => {
+  currentColumn.value = column
   await courseStore.updateCard(card.id, { column })
 }
 
@@ -708,6 +716,9 @@ const COLUMNS_ICONS = {
   review1: 'eva-checkmark-outline',
   review2: 'eva-done-all-outline',
   finished: 'eva-checkmark-square-2',
+  ready: 'eva-checkmark-circle-2-outline',
+  'assignment-ready': 'eva-file-text-outline',
+  executed: 'eva-flag-outline',
 }
 
 const COLUMN_COLORS = {
@@ -716,15 +727,16 @@ const COLUMN_COLORS = {
   review1: 'light-green-7',
   review2: 'green-7',
   finished: 'blue-7',
+  ready: 'teal-7',
+  'assignment-ready': 'purple-7',
+  executed: 'deep-purple-7',
 }
 
-const columns = [
-  { id: 'backlog', title: 'Backlog' },
-  { id: 'create-update', title: 'Create/Update' },
-  { id: 'review1', title: 'Review 1' },
-  { id: 'review2', title: 'Review 2' },
-  { id: 'finished', title: 'Finished' },
-]
+const columns = computed(() => {
+  // Get the board type from the card's board
+  const boardType = card.lecture ? 'lecture' : 'contest'
+  return boardType === 'lecture' ? LECTURE_COLUMNS : CONTEST_COLUMNS
+})
 
 // Add new refs for comments
 const comments = ref([])

@@ -150,6 +150,7 @@ import { useCourseStore } from 'src/stores/course-store.js'
 import draggable from 'components/vue.draggable.next/src/vuedraggable.js'
 import TaskCard from 'src/components/TaskCard.vue'
 import CardEditDialog from 'src/components/CardEditDialog.vue'
+import { storeToRefs } from 'pinia'
 
 const route = useRoute()
 // const $q = useQuasar()
@@ -158,34 +159,16 @@ const courseStore = useCourseStore()
 const courseId = computed(() => route.params.courseId)
 const boardId = computed(() => route.params.boardId)
 
-const course = computed(() => courseStore.selectedCourse)
-const board = computed(() => courseStore.selectedBoard)
+// Use storeToRefs to maintain reactivity
+const {
+  selectedCourse: course,
+  selectedBoard: board,
+  selectedColumnIds,
+  cardsByColumns,
+} = storeToRefs(courseStore)
 
-const boardColumns = computed(() => courseStore.selectedBoard.columns)
-
-const selectedColumnIds = ref([])
-
-const columnsToDisplay = computed(() => {
-  return boardColumns.value.filter((column) => selectedColumnIds.value.includes(column.id))
-})
-
-const boardCards = computed(() => courseStore.selectedBoardCards)
-
-const cardsByColumns = ref({})
-
-const groupCardsByColumns = () => {
-  const columns = boardColumns.value
-  const organizedCards = {}
-  if (!columns.length) {
-    return organizedCards
-  }
-
-  for (const column of columns) {
-    organizedCards[column.id] = boardCards.value.filter((card) => card.column === column.id)
-  }
-
-  cardsByColumns.value = organizedCards
-}
+const boardColumns = computed(() => courseStore.selectedBoard?.columns || [])
+const columnsToDisplay = computed(() => courseStore.columnsToDisplay)
 
 const fetchCourse = async () => {
   await courseStore.fetchCourse(courseId.value)
@@ -195,9 +178,6 @@ fetchCourse()
 
 const fetchBoard = async () => {
   await courseStore.fetchBoard(boardId.value)
-  groupCardsByColumns()
-
-  selectedColumnIds.value = boardColumns.value.map((column) => column.id)
 }
 
 fetchBoard()
@@ -206,16 +186,11 @@ const onDragEnd = async (event) => {
   const { item, from, to } = event
   const cardId = item._underlying_vm_.id
   const newColumnId = to.closest('[data-column-id]').dataset.columnId
-
   const oldColumnId = from.closest('[data-column-id]').dataset.columnId
 
   if (newColumnId !== oldColumnId) {
-    await courseStore.updateCardColumn(cardId, newColumnId)
+    await courseStore.updateCardColumn(cardId, newColumnId, oldColumnId)
   }
-
-  // update local state
-  const idx = cardsByColumns.value[newColumnId].findIndex((card) => card.id === cardId)
-  cardsByColumns.value[newColumnId][idx].column = newColumnId
 }
 
 const openEditBoard = () => {}
@@ -231,11 +206,7 @@ const openEditCard = (card) => {
 
 watch(showEditCard, (value) => {
   if (!value) {
-    //  then update the UI below
-    const card = courseStore.selectedCard
-
-    const cardOnUIIdx = cardsByColumns.value[card.column].findIndex((c) => c.id === card.id)
-    cardsByColumns.value[card.column][cardOnUIIdx] = courseStore.selectedCard
+    courseStore.groupCardsByColumns()
   }
 })
 </script>

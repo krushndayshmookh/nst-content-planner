@@ -341,13 +341,6 @@ const STATUS_COLORS = {
   finished: 'bg-purple-2',
   blocked: 'bg-red-2',
 }
-
-// const getRowClass = (row) => {
-//   console.log(row)
-//   const column = boardColumns.value.find(col => col.id === row.column)
-//   if (!column) return ''
-//   return STATUS_COLORS[column.title.toLowerCase()] || ''
-// }
 </script>
 
 <style scoped>

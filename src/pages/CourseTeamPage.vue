@@ -204,7 +204,6 @@ const fetchAvailableUsers = async () => {
     // Filter out users who are already team members
     if (courseTeam.value?.members) {
       const memberIds = courseTeam.value.members
-      console.log('memberIds', memberIds)
       availableUsers.value = availableUsers.value.filter((u) => !memberIds.includes(u.id))
     }
   } catch (err) {
