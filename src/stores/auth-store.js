@@ -41,11 +41,6 @@ export const useAuthStore = defineStore('auth', {
         // Create the user
         const user = await pb.collection('users').create({ name, email, password, passwordConfirm })
 
-        // // Set email visibility to true
-        // await pb.collection('users').update(user.id, {
-        //   emailVisibility: true,
-        // })
-
         // Create the associated profile with default values
         await pb.collection('profiles').create({
           user: user.id,
@@ -58,6 +53,11 @@ export const useAuthStore = defineStore('auth', {
         const authData = await pb.collection('users').authWithPassword(email, password)
         this.user = authData.record
         this.token = authData.token
+
+        // // Set email visibility to true
+        await pb.collection('users').update(user.id, {
+          emailVisibility: true,
+        })
 
         return true
       } catch (error) {
