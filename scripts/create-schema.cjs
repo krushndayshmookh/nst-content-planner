@@ -64,7 +64,7 @@ const CARD_CONTENT = [
   },
 ]
 
-const CONTEST_TYPES = Object.keys(CONTEST_TYPE_SETS)
+// const CONTEST_TYPES = Object.keys(CONTEST_TYPE_SETS)
 
 const LECTURE_COLUMNS = [
   { id: 'backlog', title: 'Backlog' },

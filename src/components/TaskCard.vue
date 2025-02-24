@@ -8,30 +8,95 @@
     @click="openCardDetails"
   >
     <div class="q-py-xs q-px-sm">
+      <q-badge v-if="props.card.lecture" color="blue-8" style="max-width: 100%">
+        <span class="ellipsis">
+          {{ props.card.expand?.lecture?.title }}
+        </span>
+      </q-badge>
+
       <q-badge :color="TYPE_COLORS.bg" :text-color="TYPE_COLORS.text" style="max-width: 100%">
         <span class="ellipsis">{{ courseComponent }}</span>
       </q-badge>
 
-      <q-badge v-if="props.card.assignment_type" color="secondary" style="max-width: 100%">
+      <q-badge
+        v-if="props.card.assignment_type"
+        color="secondary"
+        style="max-width: 100%"
+        class="q-ml-xs"
+      >
         <span class="ellipsis">{{ props.card.assignment_type }}</span>
+      </q-badge>
+
+      <q-badge v-if="props.card.set_name" color="orange" style="max-width: 100%" class="q-ml-xs">
+        <span class="ellipsis">{{ props.card.set_name }}</span>
       </q-badge>
     </div>
 
+    <q-separator />
+
     <q-item class="q-px-sm">
-      <q-item-section side>
-        <div class="text-body1 text-weight-medium">
-          {{ props.card.expand?.lecture?.title || props.card.expand?.contest?.title }}
+      <q-item-section>
+        <div class="text-subtitle2 text-weight-medium">{{ props.card.title }}</div>
+
+        <div v-if="props.card.question_count" class="text-caption text-grey-8">
+          {{ props.card.question_count }} questions
+        </div>
+
+        <div v-if="props.card.description" class="text-caption text-grey-8 q-mt-xs">
+          {{ props.card.description }}
+        </div>
+
+        <div v-if="props.card.file_link || props.card.assignment_link" class="q-mt-xs">
+          <q-chip v-if="props.card.file_link" dense size="sm" icon="eva-file-outline" clickable>
+            Has File
+          </q-chip>
+          <q-chip
+            v-if="props.card.assignment_link"
+            dense
+            size="sm"
+            icon="eva-link-outline"
+            clickable
+          >
+            Has Assignment
+          </q-chip>
         </div>
       </q-item-section>
 
-      <q-item-section>
-        <q-item-label v-if="isDelayed">{{ 'Delayed' }}</q-item-label>
-      </q-item-section>
+      <!-- <q-item-section side>
+        <div class="column items-end">
+          <q-badge
+            v-if="props.card.contest && props.card.assignment_is_verified !== undefined"
+            :color="props.card.assignment_is_verified ? 'positive' : 'warning'"
+            :label="props.card.assignment_is_verified ? 'Verified' : 'Not Verified'"
+          />
 
-      <q-item-section v-if="isDelayed" side>
-        <q-icon name="eva-alert-triangle-outline" color="negative" />
-      </q-item-section>
+          <q-badge
+            class="q-mt-xs"
+            :color="getStatusColor(props.card.status)"
+            :label="props.card.status"
+          />
+        </div>
+      </q-item-section> -->
     </q-item>
+
+    <q-separator />
+
+    <!-- <q-item v-if="props.card.contest" class="q-px-sm">
+      <q-item-section>
+        <div class="text-caption">
+          <div v-if="props.card.expand?.contest?.contest_date" class="q-mb-xs">
+            Contest Date: {{ $formatDateForUI(props.card.expand.contest.contest_date) }}
+          </div>
+          <div v-if="props.card.expand?.contest?.contest_ready_at" class="q-mb-xs">
+            Ready At: {{ $formatDateForUI(props.card.expand.contest.contest_ready_at) }}
+          </div>
+          <div v-if="props.card.expand?.contest?.contest_owner" class="q-mb-xs">
+            Owner: {{ props.card.expand.contest.contest_owner }}
+          </div>
+        </div>
+      </q-item-section>
+    </q-item> -->
+
     <q-item class="q-px-sm">
       <q-item-section>
         <q-card flat bordered>
@@ -192,6 +257,7 @@
       </q-item-section>
     </q-item>
 
+    <!-- TODO: Add context menu -->
     <q-menu
       touch-position
       context-menu
@@ -307,6 +373,20 @@ const isDelayed = computed(() => {
   return false
 })
 
+// function getStatusColor(status) {
+//   const statusColors = {
+//     'Not Started': 'grey',
+//     'In Creation': 'blue',
+//     'Creation Done': 'light-blue',
+//     'In R1 Review': 'orange',
+//     'R1 Approved': 'light-green',
+//     'In R2 Review': 'deep-orange',
+//     Final: 'green',
+//     Blocked: 'red',
+//   }
+//   return statusColors[status] || 'grey'
+// }
+
 function openCardDetails() {
   if (!contextMenuOpen.value) emit('edit', props.card)
 }
@@ -315,5 +395,9 @@ function openCardDetails() {
 <style scoped lang="scss">
 .red-outline {
   border: 1px solid red;
+}
+
+.q-badge + .q-badge {
+  margin-left: 4px;
 }
 </style>

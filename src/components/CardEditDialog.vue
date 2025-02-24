@@ -310,6 +310,55 @@
             </q-card>
 
             <q-card flat bordered class="q-mb-md">
+              <q-item-label header class="q-py-sm">Contest Details</q-item-label>
+              <q-separator v-if="card.contest" />
+
+              <!-- Contest Specific Fields -->
+              <q-list v-if="card.contest" dense>
+                <q-item>
+                  <q-item-section side>
+                    <q-icon name="eva-calendar-outline" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{
+                        card.expand?.contest?.contest_date
+                          ? $formatDateForUI(card.expand.contest.contest_date)
+                          : 'Not set'
+                      }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+
+                <q-item>
+                  <q-item-section side>
+                    <q-icon name="eva-person-outline" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>
+                      {{ card.expand?.contest?.expand?.owner?.name || 'Not assigned' }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+
+                <q-separator />
+
+                <q-item
+                  clickable
+                  :to="`/courses/${route.params.courseId}/contests/${card.contest}`"
+                  target="_blank"
+                >
+                  <q-item-section>
+                    <q-item-label>Open Contest</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-icon name="eva-external-link-outline" />
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card>
+
+            <q-card flat bordered class="q-mb-md">
               <q-item-label header class="q-py-sm">Assignments</q-item-label>
 
               <q-separator />

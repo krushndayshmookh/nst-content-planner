@@ -136,7 +136,7 @@ export const useCourseStore = defineStore('course', {
       this.selectedBoard = await pb.collection('boards').getOne(boardId)
       this.selectedBoardCards = await pb.collection('cards').getFullList({
         filter: `(board="${boardId}")`,
-        expand: 'creator,reviewer1,reviewer2,course,lecture,contest',
+        expand: 'creator,reviewer1,reviewer2,course,lecture,contest,contest.contest_owner',
         sort: 'order',
       })
 
@@ -190,7 +190,7 @@ export const useCourseStore = defineStore('course', {
       // console.info('updateCard', cardId, data)
       await pb.collection('cards').update(cardId, data)
       const updatedCard = await pb.collection('cards').getOne(cardId, {
-        expand: 'creator,reviewer1,reviewer2,course,lecture,contest',
+        expand: 'creator,reviewer1,reviewer2,course,lecture,contest,contest.contest_owner',
       })
 
       // Update the card in selectedBoardCards
