@@ -165,13 +165,29 @@ export const useCourseStore = defineStore('course', {
         return
       }
 
+      // Initialize all columns including unknown
       for (const column of columns) {
-        organizedCards[column.id] = this.selectedBoardCards.filter(
-          (card) => card.column === column.id,
-        )
+        organizedCards[column.id] = []
+      }
+      organizedCards['unknown'] = []
+
+      // Distribute cards to their columns
+      for (const card of this.selectedBoardCards) {
+        const columnExists = columns.some((col) => col.id === card.column)
+        if (columnExists) {
+          organizedCards[card.column].push(card)
+        } else {
+          organizedCards['unknown'].push(card)
+        }
       }
 
       this.cardsByColumns = organizedCards
+
+      // Add unknown column to board columns if it has cards
+      if (organizedCards['unknown'].length > 0 && !columns.find((col) => col.id === 'unknown')) {
+        this.selectedBoard.columns.push({ id: 'unknown', title: 'Unknown' })
+        this.selectedColumnIds.push('unknown')
+      }
     },
 
     async updateCardColumn(cardId, newColumnId, oldColumnId) {
@@ -184,16 +200,28 @@ export const useCourseStore = defineStore('course', {
       }
 
       // Update cardsByColumns
-      const card = this.cardsByColumns[oldColumnId].find((c) => c.id === cardId)
+      const card = this.cardsByColumns[oldColumnId || 'unknown'].find((c) => c.id === cardId)
       if (card) {
-        this.cardsByColumns[oldColumnId] = this.cardsByColumns[oldColumnId].filter(
-          (c) => c.id !== cardId,
-        )
+        // Remove from old column (could be unknown)
+        this.cardsByColumns[oldColumnId || 'unknown'] = this.cardsByColumns[
+          oldColumnId || 'unknown'
+        ].filter((c) => c.id !== cardId)
+
+        // Add to new column
         if (!this.cardsByColumns[newColumnId]) {
           this.cardsByColumns[newColumnId] = []
         }
         card.column = newColumnId
         this.cardsByColumns[newColumnId].push(card)
+
+        // Remove unknown column if it's empty
+        if (oldColumnId === 'unknown' && this.cardsByColumns['unknown'].length === 0) {
+          this.selectedBoard.columns = this.selectedBoard.columns.filter(
+            (col) => col.id !== 'unknown',
+          )
+          this.selectedColumnIds = this.selectedColumnIds.filter((id) => id !== 'unknown')
+          delete this.cardsByColumns['unknown']
+        }
       }
     },
 
