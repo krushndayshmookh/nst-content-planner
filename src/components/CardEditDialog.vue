@@ -345,11 +345,11 @@
 
                 <q-item
                   clickable
-                  :to="`/courses/${route.params.courseId}/contests/${card.contest}`"
+                  :to="`/courses/${route.params.courseId}/contests`"
                   target="_blank"
                 >
                   <q-item-section>
-                    <q-item-label>Open Contest</q-item-label>
+                    <q-item-label>Open Contests</q-item-label>
                   </q-item-section>
                   <q-item-section side>
                     <q-icon name="eva-external-link-outline" />
