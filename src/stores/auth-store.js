@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('auth', {
         await pb.collection('profiles').create({
           user: user.id,
           email,
-          role: 'student', // Default role
+          role: 'user', // Default role
           campus: campus || 'ADYPU', // Use provided campus or default to ADYPU
         })
 
