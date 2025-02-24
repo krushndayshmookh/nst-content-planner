@@ -20,14 +20,6 @@
         <q-btn
           outline
           color="primary"
-          icon="eva-people-outline"
-          label="Team"
-          class="q-mr-sm"
-          :to="`/courses/${courseId}/team`"
-        />
-        <q-btn
-          outline
-          color="primary"
           icon="eva-edit-outline"
           label="Edit"
           @click="openEditCourse"
@@ -35,8 +27,9 @@
       </div>
     </div>
 
-    <q-card flat bordered>
+    <q-card flat bordered class="q-mb-md">
       <q-card-section>
+        <div class="text-h6">Boards</div>
         <div class="row items-center">
           <div class="col">
             <div class="row q-col-gutter-md">
@@ -63,23 +56,6 @@
 
       <q-separator />
 
-      <!--  <q-list>
-        <q-item
-          v-for="board in boards"
-          :key="board.id"
-          clickable
-          :to="`/courses/${courseId.value}/boards/${board.id}`"
-        >
-          <q-item-section>
-            <q-item-label>{{ board.title }}</q-item-label>
-            <q-item-label caption>{{ board.description }}</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-icon name="eva-chevron-right" />
-          </q-item-section>
-        </q-item>
-      </q-list> -->
-
       <q-card-section>
         <div class="row q-col-gutter-md">
           <div v-for="board in boards" :key="board.id" class="col-6 col-sm-4 col-md-3">
@@ -103,6 +79,50 @@
         </div>
       </q-card-section>
     </q-card>
+
+    <div class="row q-col-gutter-md q-mt-md">
+      <div class="col-6">
+        <q-card>
+          <q-item>
+            <q-item-section avatar>
+              <q-icon name="eva-people-outline" color="primary" size="md" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-weight-medium">Team</q-item-label>
+              <q-item-label caption>Manage course team members</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable :to="`/courses/${courseId}/team`">
+            <q-item-section class="text-primary">Manage Team</q-item-section>
+            <q-item-section side>
+              <q-icon name="eva-chevron-right" />
+            </q-item-section>
+          </q-item>
+        </q-card>
+      </div>
+
+      <div class="col-6">
+        <q-card>
+          <q-item>
+            <q-item-section avatar>
+              <q-icon name="eva-award-outline" color="primary" size="md" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-weight-medium">Contests</q-item-label>
+              <q-item-label caption>Manage course contests</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable :to="`/courses/${courseId}/contests`">
+            <q-item-section class="text-primary">Manage Contests</q-item-section>
+            <q-item-section side>
+              <q-icon name="eva-chevron-right" />
+            </q-item-section>
+          </q-item>
+        </q-card>
+      </div>
+    </div>
 
     <q-dialog v-model="showEditCourse" position="right" persistent full-height>
       <q-card style="width: 400px">

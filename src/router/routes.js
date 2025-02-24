@@ -34,6 +34,11 @@ const routes = [
         component: () => import('pages/CourseTeamPage.vue'),
       },
       {
+        name: 'course-contests',
+        path: 'courses/:courseId/contests',
+        component: () => import('pages/CourseContests.vue'),
+      },
+      {
         name: 'course-board',
         path: 'courses/:courseId/boards/:boardId',
         component: () => import('pages/CourseBoardPage.vue'),

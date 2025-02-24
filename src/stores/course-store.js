@@ -18,6 +18,8 @@ export const useCourseStore = defineStore('course', {
     // New state properties
     selectedColumnIds: [],
     cardsByColumns: {},
+    // Contest related state
+    courseContests: [],
   }),
 
   persist: true,
@@ -208,11 +210,47 @@ export const useCourseStore = defineStore('course', {
       return updatedCard
     },
 
-    async fetchCourseTeam(courseId) {
-      const record = await pb.collection('course_teams').getFirstListItem(`course="${courseId}"`, {
-        expand: 'members',
+    async fetchCourseContests(courseId) {
+      const records = await pb.collection('contests').getFullList({
+        filter: `course="${courseId}"`,
+        sort: 'created_at',
+        expand: 'contest_owner',
       })
+      this.courseContests = records
+      return records
+    },
+
+    async createContest(data) {
+      const record = await pb.collection('contests').create(data)
+      await this.fetchCourseContests(data.course)
       return record
+    },
+
+    async updateContest(data) {
+      const { id, ...updateData } = data
+      const record = await pb.collection('contests').update(id, updateData)
+      // Refresh the contests list
+      if (this.selectedCourse) {
+        await this.fetchCourseContests(this.selectedCourse.id)
+      }
+      return record
+    },
+
+    async fetchCourseTeam(courseId) {
+      try {
+        const record = await pb
+          .collection('course_teams')
+          .getFirstListItem(`course="${courseId}"`, {
+            expand: 'members',
+          })
+        // Store team members in selectedCourseMembers
+        this.selectedCourseMembers = record.expand?.members || []
+        return record
+      } catch (error) {
+        console.error('Error fetching course team:', error)
+        this.selectedCourseMembers = []
+        return null
+      }
     },
 
     async addTeamMembers(courseId, memberIds) {
