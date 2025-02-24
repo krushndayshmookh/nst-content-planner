@@ -178,6 +178,7 @@ export const DEFAULT_CONTEST_BOARD_CONFIG = {
         { name: ASSIGNMENT_TYPES.MCQS, count: 10 },
         { name: ASSIGNMENT_TYPES.CODING, count: 5 },
       ],
+      sets: ['ADYPU 1', 'ADYPU 2', 'ADYPU 3', 'RU 1', 'RU 2'],
     },
     {
       name: CONTEST_TYPES.CONTEST_2,
@@ -185,6 +186,7 @@ export const DEFAULT_CONTEST_BOARD_CONFIG = {
         { name: ASSIGNMENT_TYPES.MCQS, count: 10 },
         { name: ASSIGNMENT_TYPES.CODING, count: 5 },
       ],
+      sets: ['ADYPU 1', 'ADYPU 2', 'ADYPU 3', 'RU 1', 'RU 2'],
     },
     {
       name: CONTEST_TYPES.CONTEST_3,
@@ -192,6 +194,7 @@ export const DEFAULT_CONTEST_BOARD_CONFIG = {
         { name: ASSIGNMENT_TYPES.MCQS, count: 10 },
         { name: ASSIGNMENT_TYPES.CODING, count: 5 },
       ],
+      sets: ['ADYPU 1', 'ADYPU 2', 'ADYPU 3', 'RU 1', 'RU 2'],
     },
     {
       name: CONTEST_TYPES.CONTEST_4,
@@ -199,6 +202,7 @@ export const DEFAULT_CONTEST_BOARD_CONFIG = {
         { name: ASSIGNMENT_TYPES.MCQS, count: 10 },
         { name: ASSIGNMENT_TYPES.CODING, count: 5 },
       ],
+      sets: ['ADYPU 1', 'ADYPU 2', 'ADYPU 3', 'RU 1', 'RU 2'],
     },
     {
       name: CONTEST_TYPES.MID_SEMESTER,
@@ -206,6 +210,7 @@ export const DEFAULT_CONTEST_BOARD_CONFIG = {
         { name: ASSIGNMENT_TYPES.MCQS, count: 15 },
         { name: ASSIGNMENT_TYPES.CODING, count: 6 },
       ],
+      sets: ['ADYPU 1', 'ADYPU 2', 'ADYPU 3', 'RU 1', 'RU 2'],
     },
     {
       name: CONTEST_TYPES.END_SEMESTER,
@@ -213,10 +218,12 @@ export const DEFAULT_CONTEST_BOARD_CONFIG = {
         { name: ASSIGNMENT_TYPES.MCQS, count: 20 },
         { name: ASSIGNMENT_TYPES.CODING, count: 10 },
       ],
+      sets: ['ADYPU 1', 'ADYPU 2', 'ADYPU 3', 'RU 1', 'RU 2'],
     },
     {
       name: CONTEST_TYPES.MOCK_INTERVIEW,
       assignmentTypes: [{ name: ASSIGNMENT_TYPES.AI_MOCK_INTERVIEW, count: 100 }],
+      sets: ['ADYPU 1', 'RU 1'],
     },
     {
       name: CONTEST_TYPES.END_SEMESTER_RETEST,
@@ -224,6 +231,7 @@ export const DEFAULT_CONTEST_BOARD_CONFIG = {
         { name: ASSIGNMENT_TYPES.MCQS, count: 15 },
         { name: ASSIGNMENT_TYPES.CODING, count: 10 },
       ],
+      sets: ['ADYPU 1', 'ADYPU 2', 'ADYPU 3'],
     },
   ],
 }

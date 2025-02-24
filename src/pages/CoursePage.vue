@@ -371,8 +371,42 @@
                           flat
                           color="primary"
                           label="Add Assignment Type"
-                          class="q-mt-sm"
+                          class="q-mt-sm q-mb-md"
                           @click="contest.assignmentTypes.push({ name: '', count: 1 })"
+                        />
+
+                        <div class="text-caption q-mb-sm">Sets</div>
+                        <div
+                          v-for="(set, setIndex) in contest.sets"
+                          :key="setIndex"
+                          class="row q-col-gutter-sm q-mb-sm"
+                        >
+                          <div class="col">
+                            <q-input
+                              v-model="contest.sets[setIndex]"
+                              label="Set Name"
+                              dense
+                              outlined
+                            />
+                          </div>
+                          <div class="col-auto">
+                            <q-btn
+                              flat
+                              round
+                              dense
+                              color="negative"
+                              icon="eva-trash-2-outline"
+                              @click="contest.sets.splice(setIndex, 1)"
+                            />
+                          </div>
+                        </div>
+
+                        <q-btn
+                          flat
+                          color="primary"
+                          label="Add Set"
+                          class="q-mt-sm"
+                          @click="contest.sets.push('')"
                         />
                       </q-item-section>
 
@@ -398,6 +432,7 @@
                       contestBoardConfig.contestTypes.push({
                         name: '',
                         assignmentTypes: [],
+                        sets: [],
                       })
                     "
                   />
@@ -789,32 +824,34 @@ const getCardsForContestBoard = (board, contests, config) => {
       continue
     }
     for (const assignmentType of contestConfig.assignmentTypes) {
-      cards.push({
-        title: `${contest.title} - ${assignmentType.name}`,
-        type: assignmentType.name,
-        contest: contest.id,
-        component: 'Contest',
-        course: courseId.value,
-        board: board.id,
-        column: 'backlog',
-        status: 'Not Started',
-        description: `Contest card for ${contest.title} - ${assignmentType.name}`,
-        assignment_type: assignmentType.name,
-        assignment_is_verified: false,
-        // Additional required fields
-        file_link: null,
-        question_count: assignmentType.count,
-        questions: [],
-        assignment_link: null,
-        set_name: null,
-      })
-
-      for (let i = 0; i < assignmentType.count; i++) {
-        questions.push({
-          title: `${assignmentType.name} Q${String(i + 1).padStart(2, '0')}`,
+      for (const set of contestConfig.sets) {
+        cards.push({
+          title: `${contest.title} - ${assignmentType.name} - ${set}`,
           type: assignmentType.name,
           contest: contest.id,
+          component: 'Contest',
+          course: courseId.value,
+          board: board.id,
+          column: 'backlog',
+          status: 'Not Started',
+          description: `Contest card for ${contest.title} - ${assignmentType.name}`,
+          assignment_type: assignmentType.name,
+          assignment_is_verified: false,
+          // Additional required fields
+          file_link: null,
+          question_count: assignmentType.count,
+          questions: [],
+          assignment_link: null,
+          set_name: set,
         })
+
+        for (let i = 0; i < assignmentType.count; i++) {
+          questions.push({
+            title: `${assignmentType.name} Q${String(i + 1).padStart(2, '0')}`,
+            type: assignmentType.name,
+            contest: contest.id,
+          })
+        }
       }
     }
   }
