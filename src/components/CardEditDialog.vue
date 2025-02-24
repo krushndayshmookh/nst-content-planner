@@ -336,7 +336,7 @@
                   </q-item-section>
                   <q-item-section>
                     <q-item-label>
-                      {{ card.expand?.contest?.expand?.owner?.name || 'Not assigned' }}
+                      {{ card.expand?.contest?.expand?.contest_owner?.name || 'Not assigned' }}
                     </q-item-label>
                   </q-item-section>
                 </q-item>
