@@ -81,7 +81,7 @@
     </q-card>
 
     <div class="row q-col-gutter-md q-mt-md">
-      <div class="col-6">
+      <div class="col-4">
         <q-card>
           <q-item>
             <q-item-section avatar>
@@ -102,7 +102,7 @@
         </q-card>
       </div>
 
-      <div class="col-6">
+      <div class="col-4">
         <q-card>
           <q-item>
             <q-item-section avatar>
@@ -116,6 +116,27 @@
 
           <q-item clickable :to="`/courses/${courseId}/contests`">
             <q-item-section class="text-primary">Manage Contests</q-item-section>
+            <q-item-section side>
+              <q-icon name="eva-chevron-right" />
+            </q-item-section>
+          </q-item>
+        </q-card>
+      </div>
+
+      <div class="col-4">
+        <q-card>
+          <q-item>
+            <q-item-section avatar>
+              <q-icon name="eva-book-outline" color="primary" size="md" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-weight-medium">Lectures</q-item-label>
+              <q-item-label caption>Manage course lectures</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable :to="`/courses/${courseId}/lectures`">
+            <q-item-section class="text-primary">Manage Lectures</q-item-section>
             <q-item-section side>
               <q-icon name="eva-chevron-right" />
             </q-item-section>

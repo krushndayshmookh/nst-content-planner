@@ -20,6 +20,8 @@ export const useCourseStore = defineStore('course', {
     cardsByColumns: {},
     // Contest related state
     courseContests: [],
+    // Lecture related state
+    lectures: [],
   }),
 
   persist: true,
@@ -81,7 +83,12 @@ export const useCourseStore = defineStore('course', {
     },
 
     async createLecture(data) {
-      return await pb.collection('lectures').create(data)
+      const record = await pb.collection('lectures').create({
+        ...data,
+        created_at: new Date().toISOString(),
+      })
+      await this.fetchLectures()
+      return record
     },
 
     async createCard(data) {
@@ -285,6 +292,22 @@ export const useCourseStore = defineStore('course', {
       await pb.collection('course_teams').update(team.id, {
         members: updatedMembers,
       })
+    },
+
+    async fetchLectures() {
+      const records = await pb.collection('lectures').getFullList({
+        sort: 'title',
+        expand: 'course',
+      })
+      this.lectures = records
+      return records
+    },
+
+    async updateLecture(data) {
+      const { id, ...updateData } = data
+      const record = await pb.collection('lectures').update(id, updateData)
+      await this.fetchLectures()
+      return record
     },
   },
 })
