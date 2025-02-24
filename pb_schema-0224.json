@@ -948,11 +948,9 @@
           "Lecture Outline",
           "Lab Outline",
           "Presentation",
-          "In-class MCQs",
-          "Post-class MCQs",
-          "In-class Coding Qs",
-          "Post-class Coding Qs",
-          "Lab Coding Qs",
+          "In-class",
+          "Post-class",
+          "Lab",
           "Contest"
         ]
       },
@@ -1233,10 +1231,10 @@
       },
       {
         "hidden": false,
-        "id": "number111491034",
+        "id": "number3039974758",
         "max": null,
         "min": null,
-        "name": "mc_question_count",
+        "name": "question_count",
         "onlyInt": false,
         "presentable": false,
         "required": false,
@@ -1247,10 +1245,10 @@
         "cascadeDelete": false,
         "collectionId": "pbc_4009210445",
         "hidden": false,
-        "id": "relation550815246",
+        "id": "relation2329695445",
         "maxSelect": 999,
         "minSelect": 0,
-        "name": "mc_questions",
+        "name": "questions",
         "presentable": false,
         "required": false,
         "system": false,
@@ -1258,28 +1256,14 @@
       },
       {
         "hidden": false,
-        "id": "number3747953018",
-        "max": null,
-        "min": null,
-        "name": "coding_question_count",
-        "onlyInt": false,
+        "id": "select3621296821",
+        "maxSelect": 0,
+        "name": "assignment_type",
         "presentable": false,
         "required": false,
         "system": false,
-        "type": "number"
-      },
-      {
-        "cascadeDelete": false,
-        "collectionId": "pbc_4009210445",
-        "hidden": false,
-        "id": "relation1792378313",
-        "maxSelect": 999,
-        "minSelect": 0,
-        "name": "coding_questions",
-        "presentable": false,
-        "required": false,
-        "system": false,
-        "type": "relation"
+        "type": "select",
+        "values": ["MCQs", "Coding", "AI Mock Interview"]
       },
       {
         "autogeneratePattern": "",
@@ -1294,17 +1278,6 @@
         "required": false,
         "system": false,
         "type": "text"
-      },
-      {
-        "hidden": false,
-        "id": "select3621296821",
-        "maxSelect": 0,
-        "name": "assignment_type",
-        "presentable": false,
-        "required": false,
-        "system": false,
-        "type": "select",
-        "values": ["MCQs", "Coding"]
       },
       {
         "hidden": false,
@@ -1581,26 +1554,6 @@
       },
       {
         "hidden": false,
-        "id": "select1203062754",
-        "maxSelect": 1,
-        "name": "contest_type",
-        "presentable": false,
-        "required": true,
-        "system": false,
-        "type": "select",
-        "values": [
-          "Contest 1",
-          "Contest 2",
-          "Contest 3",
-          "Contest 4",
-          "Mid Semester",
-          "End Semester",
-          "Mock Interview",
-          "End Semester Retest"
-        ]
-      },
-      {
-        "hidden": false,
         "id": "date1643456433",
         "max": "",
         "min": "",
@@ -1633,6 +1586,20 @@
         "required": false,
         "system": false,
         "type": "relation"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text1203062754",
+        "max": 0,
+        "min": 0,
+        "name": "contest_type",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
       },
       {
         "hidden": false,
@@ -2012,6 +1979,20 @@
         "type": "relation"
       },
       {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text3885137012",
+        "max": 0,
+        "min": 0,
+        "name": "email",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
         "hidden": false,
         "id": "select1466534506",
         "maxSelect": 1,
@@ -2032,17 +2013,6 @@
         "system": false,
         "type": "select",
         "values": ["ADYPU", "RU"]
-      },
-      {
-        "exceptDomains": null,
-        "hidden": false,
-        "id": "email3885137012",
-        "name": "email",
-        "onlyDomains": null,
-        "presentable": false,
-        "required": false,
-        "system": false,
-        "type": "email"
       }
     ],
     "indexes": [],
@@ -2095,7 +2065,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": ["MCQs", "Coding"]
+        "values": ["MCQs", "Coding", "AI Mock Interview"]
       },
       {
         "hidden": false,
