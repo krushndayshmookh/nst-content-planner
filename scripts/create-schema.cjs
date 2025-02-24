@@ -316,10 +316,10 @@ async function createSchema() {
         },
         {
           name: 'contest_type',
-          type: 'select',
+          type: 'text',
           required: true,
-          values: CONTEST_TYPES,
-          maxSelect: 1,
+          // values: CONTEST_TYPES,
+          // maxSelect: 1,
         },
         {
           name: 'contest_date',
