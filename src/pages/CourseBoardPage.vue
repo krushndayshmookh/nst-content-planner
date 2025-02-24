@@ -407,7 +407,35 @@ const onDragEnd = async (event) => {
   }
 }
 
-const openEditBoard = () => {}
+const openEditBoard = () => {
+  // Show dialog to edit board title
+  $q.dialog({
+    title: 'Edit Board',
+    message: 'Update board title',
+    prompt: {
+      model: board.value.title,
+      type: 'text',
+    },
+    cancel: true,
+    persistent: true,
+  }).onOk(async (newTitle) => {
+    try {
+      await pb.collection('boards').update(boardId.value, {
+        title: newTitle,
+      })
+      $q.notify({
+        type: 'positive',
+        message: 'Board updated successfully',
+      })
+    } catch (error) {
+      console.error('Failed to update board:', error)
+      $q.notify({
+        type: 'negative',
+        message: 'Failed to update board',
+      })
+    }
+  })
+}
 
 const showEditCard = ref(false)
 
