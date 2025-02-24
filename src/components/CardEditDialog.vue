@@ -66,194 +66,326 @@
             </div>
           </div>
 
-          <div v-if="cardQuestions.length" class="q-px-md">
-            <q-list bordered separator>
-              <q-item
-                v-for="question in cardQuestions"
-                :key="question.id"
-                :class="{
-                  'bg-green-1': question.is_reviewed,
-                  'bg-red-1': !question.question_id,
-                  'bg-yellow-1': question.question_id && !question.is_reviewed,
-                }"
-              >
-                <q-item-section class="col-4">
-                  <q-input
-                    v-model="question.question_id"
-                    placeholder="Django ID"
-                    outlined
-                    dense
-                    @update:model-value="(val) => handleQuestionInput(val, question)"
-                  />
-                </q-item-section>
-                <q-item-section v-if="question.is_reviewed">
-                  <q-item-label>
-                    <q-icon name="eva-checkmark-circle-outline" color="positive" /> Reviewed
-                  </q-item-label>
-                </q-item-section>
-                <q-item-section v-else>
-                  <q-item-label>
-                    <q-icon name="eva-checkmark-circle-outline" color="grey" /> Not Reviewed
-                  </q-item-label>
-                </q-item-section>
+          <div v-if="cardQuestions.length || otherQuestions.length" class="q-px-md">
+            <div class="row items-center q-mb-sm">
+              <div class="col">
+                <div class="text-h6">Questions</div>
+              </div>
+              <div class="col-auto">
+                <q-btn-toggle
+                  v-model="questionsMode"
+                  size="sm"
+                  flat
+                  :options="[
+                    { icon: 'eva-eye-outline', value: 'show' },
+                    { icon: 'eva-eye-off-outline', value: 'hide' },
+                  ]"
+                />
+              </div>
+            </div>
 
-                <q-item-section v-if="!question.is_reviewed" side>
-                  <q-btn
-                    round
-                    flat
-                    dense
-                    icon="eva-refresh-outline"
-                    color="grey"
-                    disable
-                    @click="updateQuestion(question)"
+            <template v-if="questionsMode === 'show'">
+              <!-- Card-specific questions -->
+              <div v-if="cardQuestions.length" class="q-mb-md">
+                <div class="text-subtitle2 q-mb-sm">Card Questions</div>
+                <q-list bordered separator>
+                  <q-item
+                    v-for="question in cardQuestions"
+                    :key="question.id"
+                    :class="{
+                      'bg-green-1': question.is_reviewed,
+                      'bg-red-1': !question.question_id,
+                      'bg-yellow-1': question.question_id && !question.is_reviewed,
+                    }"
                   >
-                    <q-tooltip>Check for Updates</q-tooltip>
-                  </q-btn>
-                </q-item-section>
+                    <q-item-section class="col-4">
+                      <q-input
+                        v-model="question.question_id"
+                        placeholder="Django ID"
+                        outlined
+                        dense
+                        @update:model-value="(val) => handleQuestionInput(val, question)"
+                      />
+                    </q-item-section>
+                    <q-item-section v-if="question.is_reviewed">
+                      <q-item-label>
+                        <q-icon name="eva-checkmark-circle-outline" color="positive" /> Reviewed
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section v-else>
+                      <q-item-label>
+                        <q-icon name="eva-checkmark-circle-outline" color="grey" /> Not Reviewed
+                      </q-item-label>
+                    </q-item-section>
 
-                <q-item-section side>
-                  <q-btn
-                    round
-                    flat
-                    dense
-                    icon="eva-eye-outline"
-                    :color="question.question_id ? 'primary' : 'grey'"
-                    :disable="!question.question_id"
-                    @click="openQuestion(question)"
+                    <q-item-section v-if="!question.is_reviewed" side>
+                      <q-btn
+                        round
+                        flat
+                        dense
+                        icon="eva-refresh-outline"
+                        color="grey"
+                        disable
+                        @click="updateQuestion(question)"
+                      >
+                        <q-tooltip>Check for Updates</q-tooltip>
+                      </q-btn>
+                    </q-item-section>
+
+                    <q-item-section side>
+                      <q-btn
+                        round
+                        flat
+                        dense
+                        icon="eva-eye-outline"
+                        :color="question.question_id ? 'primary' : 'grey'"
+                        :disable="!question.question_id"
+                        @click="openQuestion(question)"
+                      >
+                        <q-tooltip>Open Question</q-tooltip>
+                      </q-btn>
+                    </q-item-section>
+
+                    <q-item-section side>
+                      <q-btn
+                        round
+                        flat
+                        dense
+                        icon="eva-minus-circle-outline"
+                        color="negative"
+                        @click="removeQuestionFromCard(question)"
+                      >
+                        <q-tooltip>Remove from Card</q-tooltip>
+                      </q-btn>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </div>
+
+              <!-- Other questions from the same lecture/contest -->
+              <div v-if="otherQuestions.length">
+                <div class="text-subtitle2 q-mb-sm">Other Questions</div>
+                <q-list bordered separator>
+                  <q-item
+                    v-for="question in otherQuestions"
+                    :key="question.id"
+                    :class="{
+                      'bg-green-1': question.is_reviewed,
+                      'bg-red-1': !question.question_id,
+                      'bg-yellow-1': question.question_id && !question.is_reviewed,
+                    }"
                   >
-                    <q-tooltip>Open Question</q-tooltip>
-                  </q-btn>
-                </q-item-section>
-              </q-item>
-            </q-list>
+                    <q-item-section class="col-4">
+                      <q-input
+                        v-model="question.question_id"
+                        placeholder="Django ID"
+                        outlined
+                        dense
+                        @update:model-value="(val) => handleQuestionInput(val, question)"
+                      />
+                    </q-item-section>
+                    <q-item-section v-if="question.is_reviewed">
+                      <q-item-label>
+                        <q-icon name="eva-checkmark-circle-outline" color="positive" /> Reviewed
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section v-else>
+                      <q-item-label>
+                        <q-icon name="eva-checkmark-circle-outline" color="grey" /> Not Reviewed
+                      </q-item-label>
+                    </q-item-section>
+
+                    <q-item-section v-if="!question.is_reviewed" side>
+                      <q-btn
+                        round
+                        flat
+                        dense
+                        icon="eva-refresh-outline"
+                        color="grey"
+                        disable
+                        @click="updateQuestion(question)"
+                      >
+                        <q-tooltip>Check for Updates</q-tooltip>
+                      </q-btn>
+                    </q-item-section>
+
+                    <q-item-section side>
+                      <q-btn
+                        round
+                        flat
+                        dense
+                        icon="eva-eye-outline"
+                        :color="question.question_id ? 'primary' : 'grey'"
+                        :disable="!question.question_id"
+                        @click="openQuestion(question)"
+                      >
+                        <q-tooltip>Open Question</q-tooltip>
+                      </q-btn>
+                    </q-item-section>
+
+                    <q-item-section side>
+                      <q-btn
+                        round
+                        flat
+                        dense
+                        icon="eva-plus-circle-outline"
+                        color="positive"
+                        @click="addQuestionToCard(question)"
+                      >
+                        <q-tooltip>Add to Card</q-tooltip>
+                      </q-btn>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </div>
+            </template>
           </div>
 
           <!-- <q-separator /> -->
 
           <div class="q-pa-md">
-            <div class="text-h6 q-mb-sm">Comments</div>
-
-            <div class="comment-editor q-mb-md q-pa-sm">
-              <div>
-                <q-input
-                  ref="commentInput"
-                  v-model="newComment"
-                  :placeholder="replyTo ? 'Write a reply...' : 'Write a comment...'"
-                  outlined
-                  dense
-                  type="textarea"
-                  rows="3"
-                  class="q-pr-none"
-                  @keydown.enter.prevent="postComment"
-                >
-                </q-input>
+            <div class="row items-center q-mb-sm">
+              <div class="col">
+                <div class="text-h6">Comments</div>
               </div>
-              <div class="row justify-end">
-                <div class="col-auto q-pt-sm">
-                  <q-btn
-                    v-if="replyTo"
-                    label="Cancel"
-                    flat
-                    color="negative"
-                    size="sm"
-                    @click="cancelReply"
-                  />
-
-                  <q-btn
-                    :label="replyTo ? 'Reply' : 'Comment'"
-                    color="primary"
-                    size="sm"
-                    class="q-ml-sm"
-                    @click="postComment"
-                  />
-                </div>
+              <div class="col-auto">
+                <q-btn-toggle
+                  v-model="commentsMode"
+                  size="sm"
+                  flat
+                  :options="[
+                    { icon: 'eva-eye-outline', value: 'show' },
+                    { icon: 'eva-eye-off-outline', value: 'hide' },
+                  ]"
+                />
               </div>
             </div>
 
-            <div class="comments-list">
-              <template v-if="comments.length">
-                <div
-                  v-for="comment in sortedComments"
-                  :key="comment.id"
-                  :data-comment-id="comment.id"
-                  class="comment-item q-mb-md"
-                  :class="{
-                    'comment-resolved': comment.resolved,
-                    'comment-highlighted': comment.id === replyTo?.id,
-                    'comment-flash-highlight': tempHighlightedComment === comment.id,
-                  }"
-                >
-                  <div class="row items-start">
-                    <div class="col flex">
-                      <div class="column full-width">
-                        <div class="q-pa-sm">
-                          <p>
-                            <span class="text-weight-medium">{{ comment.expand?.user?.name }}</span>
-                            <span class="text-caption q-ml-sm text-grey">
-                              {{ formatTimeAgo(comment.created_at) }}
-                            </span>
-                            <span v-if="comment.is_reply" class="text-caption text-grey">
-                              &bull; replied to
-                              <a
-                                href="#"
-                                class="text-primary"
-                                @click.prevent="highlightComment(comment.parent)"
-                              >
-                                <span class="text-weight-medium">{{
-                                  `${comment.expand?.parent?.expand?.user?.name}'s`
-                                }}</span>
-                                comment
-                              </a>
-                            </span>
-                          </p>
+            <template v-if="commentsMode === 'show'">
+              <div class="comment-editor q-mb-md q-pa-sm">
+                <div>
+                  <q-input
+                    ref="commentInput"
+                    v-model="newComment"
+                    :placeholder="replyTo ? 'Write a reply...' : 'Write a comment...'"
+                    outlined
+                    dense
+                    type="textarea"
+                    rows="3"
+                    class="q-pr-none"
+                    @keydown.enter.prevent="postComment"
+                  >
+                  </q-input>
+                </div>
+                <div class="row justify-end">
+                  <div class="col-auto q-pt-sm">
+                    <q-btn
+                      v-if="replyTo"
+                      label="Cancel"
+                      flat
+                      color="negative"
+                      size="sm"
+                      @click="cancelReply"
+                    />
 
-                          <div
-                            class="comment-content"
-                            v-html="renderContent(comment.content)"
-                          ></div>
-                        </div>
+                    <q-btn
+                      :label="replyTo ? 'Reply' : 'Comment'"
+                      color="primary"
+                      size="sm"
+                      class="q-ml-sm"
+                      @click="postComment"
+                    />
+                  </div>
+                </div>
+              </div>
 
-                        <div v-if="comment.resolved" class="text-caption q-ma-sm text-positive">
-                          Resolved by
-                          <span class="text-weight-medium">{{
-                            comment.expand?.resolved_by?.name
-                          }}</span>
-                          {{ formatTimeAgo(comment.resolved_at) }}
+              <div class="comments-list">
+                <template v-if="comments.length">
+                  <div
+                    v-for="comment in sortedComments"
+                    :key="comment.id"
+                    :data-comment-id="comment.id"
+                    class="comment-item q-mb-md"
+                    :class="{
+                      'comment-resolved': comment.resolved,
+                      'comment-highlighted': comment.id === replyTo?.id,
+                      'comment-flash-highlight': tempHighlightedComment === comment.id,
+                    }"
+                  >
+                    <div class="row items-start">
+                      <div class="col flex">
+                        <div class="column full-width">
+                          <div class="q-pa-sm">
+                            <p>
+                              <span class="text-weight-medium">{{
+                                comment.expand?.user?.name
+                              }}</span>
+                              <span class="text-caption q-ml-sm text-grey">
+                                {{ formatTimeAgo(comment.created_at) }}
+                              </span>
+                              <span v-if="comment.is_reply" class="text-caption text-grey">
+                                &bull; replied to
+                                <a
+                                  href="#"
+                                  class="text-primary"
+                                  @click.prevent="highlightComment(comment.parent)"
+                                >
+                                  <span class="text-weight-medium">{{
+                                    `${comment.expand?.parent?.expand?.user?.name}'s`
+                                  }}</span>
+                                  comment
+                                </a>
+                              </span>
+                            </p>
+
+                            <div
+                              class="comment-content"
+                              v-html="renderContent(comment.content)"
+                            ></div>
+                          </div>
+
+                          <div v-if="comment.resolved" class="text-caption q-ma-sm text-positive">
+                            Resolved by
+                            <span class="text-weight-medium">{{
+                              comment.expand?.resolved_by?.name
+                            }}</span>
+                            {{ formatTimeAgo(comment.resolved_at) }}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <!-- <q-separator vertical /> -->
+                      <!-- <q-separator vertical /> -->
 
-                    <div class="col-auto">
-                      <div class="column q-pa-sm">
-                        <q-btn
-                          flat
-                          dense
-                          round
-                          icon="eva-message-square-outline"
-                          class="q-mb-sm"
-                          @click="startReply(comment)"
-                        />
-                        <q-btn
-                          flat
-                          dense
-                          round
-                          :icon="
-                            comment.resolved
-                              ? 'eva-checkmark-circle-2'
-                              : 'eva-checkmark-circle-outline'
-                          "
-                          :color="comment.resolved ? 'positive' : 'grey'"
-                          @click="toggleResolved(comment)"
-                        />
+                      <div class="col-auto">
+                        <div class="column q-pa-sm">
+                          <q-btn
+                            flat
+                            dense
+                            round
+                            icon="eva-message-square-outline"
+                            class="q-mb-sm"
+                            @click="startReply(comment)"
+                          />
+                          <q-btn
+                            flat
+                            dense
+                            round
+                            :icon="
+                              comment.resolved
+                                ? 'eva-checkmark-circle-2'
+                                : 'eva-checkmark-circle-outline'
+                            "
+                            :color="comment.resolved ? 'positive' : 'grey'"
+                            @click="toggleResolved(comment)"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </template>
-              <div v-else class="text-grey text-center q-pa-md">No comments yet</div>
-            </div>
+                </template>
+                <div v-else class="text-grey text-center q-pa-md">No comments yet</div>
+              </div>
+            </template>
           </div>
 
           <div class="empty-space q-px-xl q-my-xl"></div>
@@ -669,18 +801,21 @@ const fetchTeamMembers = async () => {
 }
 
 const cardQuestions = ref([])
+const otherQuestions = ref([])
 
 const fetchCardQuestions = async () => {
-  if (card.question_count) {
-    let filter = card.lecture ? `lecture="${card.lecture}"` : `contest="${card.contest}"`
-    filter += ` && type="${card.assignment_type}"`
+  if (!card.question_count) return
 
-    const questions = await pb.collection('questions').getFullList({
-      filter,
-    })
+  let filter = card.lecture ? `lecture="${card.lecture}"` : `contest="${card.contest}"`
+  filter += ` && type="${card.assignment_type}"`
 
-    cardQuestions.value = questions
-  }
+  const questions = await pb.collection('questions').getFullList({
+    filter,
+  })
+
+  // Split questions into card-specific and other questions
+  cardQuestions.value = questions.filter((q) => card.questions.includes(q.id))
+  otherQuestions.value = questions.filter((q) => !card.questions.includes(q.id))
 }
 
 onMounted(() => {
@@ -1124,6 +1259,61 @@ watch(selectedBoard, (newValue, oldValue) => {
     isDirty.value.board = true
   }
 })
+
+// Add new methods for adding/removing questions
+const addQuestionToCard = async (question) => {
+  try {
+    // Add question ID to card's questions array
+    const updatedQuestions = [...card.questions, question.id]
+    await courseStore.updateCard(card.id, { questions: updatedQuestions })
+
+    // Update local state
+    cardQuestions.value.push(question)
+    otherQuestions.value = otherQuestions.value.filter((q) => q.id !== question.id)
+
+    $q.notify({
+      type: 'positive',
+      message: 'Question added to card',
+      position: 'bottom-right',
+    })
+  } catch (error) {
+    console.error('Failed to add question to card:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to add question to card',
+      position: 'bottom-right',
+    })
+  }
+}
+
+const removeQuestionFromCard = async (question) => {
+  try {
+    // Remove question ID from card's questions array
+    const updatedQuestions = card.questions.filter((id) => id !== question.id)
+    await courseStore.updateCard(card.id, { questions: updatedQuestions })
+
+    // Update local state
+    otherQuestions.value.push(question)
+    cardQuestions.value = cardQuestions.value.filter((q) => q.id !== question.id)
+
+    $q.notify({
+      type: 'positive',
+      message: 'Question removed from card',
+      position: 'bottom-right',
+    })
+  } catch (error) {
+    console.error('Failed to remove question from card:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to remove question from card',
+      position: 'bottom-right',
+    })
+  }
+}
+
+// Add new refs for section visibility
+const questionsMode = ref('show')
+const commentsMode = ref('show')
 </script>
 
 <style scoped lang="scss">

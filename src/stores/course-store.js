@@ -138,7 +138,9 @@ export const useCourseStore = defineStore('course', {
         batch.collection('questions').create(question)
       }
 
-      return await batch.send()
+      const results = await batch.send()
+      // Return the IDs of created questions
+      return results.map((result) => result.body.id)
     },
 
     async fetchBoard(boardId) {

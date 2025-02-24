@@ -638,6 +638,139 @@ const addLectureBoardComponent = () => {
   })
 }
 
+const getCardsForLectureBoard = (board, lectures, config) => {
+  const cards = []
+  const questions = []
+  const cardQuestionMap = new Map() // Map to track which questions belong to which card index
+  let cardIndex = 0
+
+  for (const lecture of lectures) {
+    for (const componentType of config.componentTypes) {
+      if (componentType.contentType === CONTENT_TYPES.DOCUMENT) {
+        // For documents, create single card
+        cards.push({
+          title: `${componentType.name}`,
+          type: componentType.name,
+          lecture: lecture.id,
+          component: componentType.name,
+          course: courseId.value,
+          board: board.id,
+          column: 'backlog',
+          status: 'Not Started',
+          description: `${componentType.name} for ${lecture.title}`,
+          assignment_type: null,
+          assignment_is_verified: false,
+          file_link: null,
+        })
+        cardIndex++
+      } else if (componentType.contentType === CONTENT_TYPES.ASSIGNMENT) {
+        // For assignments, create card for each assignment type
+        for (const assignmentType of componentType.assignmentTypes) {
+          cards.push({
+            title: `${componentType.name} - ${assignmentType.name}`,
+            type: componentType.name,
+            lecture: lecture.id,
+            component: componentType.name,
+            course: courseId.value,
+            board: board.id,
+            column: 'backlog',
+            status: 'Not Started',
+            description: `${componentType.name} ${assignmentType.name} for ${lecture.title}`,
+            assignment_type: assignmentType.name,
+            assignment_is_verified: false,
+            question_count: assignmentType.count,
+            questions: [],
+            assignment_link: null,
+            set_name: null,
+          })
+
+          // Create individual questions for this assignment type and track which card they belong to
+          const questionStartIndex = questions.length
+          for (let i = 0; i < assignmentType.count; i++) {
+            questions.push({
+              title: `${assignmentType.name} Q${String(i + 1).padStart(2, '0')}`,
+              type: assignmentType.name,
+              lecture: lecture.id,
+            })
+          }
+          cardQuestionMap.set(cardIndex, {
+            start: questionStartIndex,
+            count: assignmentType.count,
+          })
+          cardIndex++
+        }
+      }
+    }
+  }
+  return [cards, questions, cardQuestionMap]
+}
+
+const getContests = (config) => {
+  const contests = []
+  for (const contestType of config.contestTypes) {
+    contests.push({
+      title: `${contestType.name}`,
+      course: courseId.value,
+      contest_type: contestType.name,
+    })
+  }
+  return contests
+}
+
+const getCardsForContestBoard = (board, contests, config) => {
+  const cards = []
+  const questions = []
+  const cardQuestionMap = new Map() // Map to track which questions belong to which card index
+  let cardIndex = 0
+
+  for (const contest of contests) {
+    const contestConfig = config.contestTypes.find((c) => c.name === contest.contest_type)
+
+    if (!contestConfig) {
+      console.warn('No contest config found for contest type:', contest.contest_type)
+      continue
+    }
+    for (const assignmentType of contestConfig.assignmentTypes) {
+      for (const set of contestConfig.sets) {
+        cards.push({
+          title: `${contest.title} - ${assignmentType.name} - ${set}`,
+          type: assignmentType.name,
+          contest: contest.id,
+          component: 'Contest',
+          course: courseId.value,
+          board: board.id,
+          column: 'backlog',
+          status: 'Not Started',
+          description: `Contest card for ${contest.title} - ${assignmentType.name}`,
+          assignment_type: assignmentType.name,
+          assignment_is_verified: false,
+          file_link: null,
+          question_count: assignmentType.count,
+          questions: [],
+          assignment_link: null,
+          set_name: set,
+        })
+
+        // Create individual questions for this assignment type and track which card they belong to
+        const questionStartIndex = questions.length
+        for (let i = 0; i < assignmentType.count; i++) {
+          questions.push({
+            title: `${assignmentType.name} Q${String(i + 1).padStart(2, '0')}`,
+            type: assignmentType.name,
+            contest: contest.id,
+          })
+        }
+        cardQuestionMap.set(cardIndex, {
+          start: questionStartIndex,
+          count: assignmentType.count,
+        })
+        cardIndex++
+      }
+    }
+  }
+  return [cards, questions, cardQuestionMap]
+}
+
 const createLectureBoard = async () => {
   try {
     isCreatingLectureBoard.value = true
@@ -666,19 +799,32 @@ const createLectureBoard = async () => {
 
     // Generate cards and questions
     createProgress.value = 'Creating cards and questions...'
-    const [cardConfigs, questionConfigs] = getCardsForLectureBoard(
+    const [cardConfigs, questionConfigs, cardQuestionMap] = getCardsForLectureBoard(
       board,
       createdLectures,
       lectureBoardConfig.value,
     )
 
-    // Create cards
-    await courseStore.createBulkCards(cardConfigs)
-
-    // Create questions
+    // Create questions first to get their IDs
+    let questionIds = []
     if (questionConfigs.length > 0) {
-      await courseStore.createBulkQuestions(questionConfigs)
+      questionIds = await courseStore.createBulkQuestions(questionConfigs)
     }
+
+    // Update card configs with question IDs
+    cardConfigs.forEach((card, index) => {
+      const questionMapping = cardQuestionMap.get(index)
+      if (questionMapping) {
+        const cardQuestionIds = questionIds.slice(
+          questionMapping.start,
+          questionMapping.start + questionMapping.count,
+        )
+        card.questions = cardQuestionIds
+      }
+    })
+
+    // Create cards with updated question IDs
+    await courseStore.createBulkCards(cardConfigs)
 
     showCreateLectureBoard.value = false
     lectureBoardTitle.value = ''
@@ -731,19 +877,32 @@ const createContestBoard = async () => {
     // Generate cards and questions
     createProgress.value = 'Creating cards and questions...'
 
-    const [cardConfigs, questionConfigs] = getCardsForContestBoard(
+    const [cardConfigs, questionConfigs, cardQuestionMap] = getCardsForContestBoard(
       board,
       createdContests,
       contestBoardConfig.value,
     )
 
-    // Create cards
-    await courseStore.createBulkCards(cardConfigs)
-
-    // Create questions
+    // Create questions first to get their IDs
+    let questionIds = []
     if (questionConfigs.length > 0) {
-      await courseStore.createBulkQuestions(questionConfigs)
+      questionIds = await courseStore.createBulkQuestions(questionConfigs)
     }
+
+    // Update card configs with question IDs
+    cardConfigs.forEach((card, index) => {
+      const questionMapping = cardQuestionMap.get(index)
+      if (questionMapping) {
+        const cardQuestionIds = questionIds.slice(
+          questionMapping.start,
+          questionMapping.start + questionMapping.count,
+        )
+        card.questions = cardQuestionIds
+      }
+    })
+
+    // Create cards with updated question IDs
+    await courseStore.createBulkCards(cardConfigs)
 
     showCreateContestBoard.value = false
     contestBoardTitle.value = ''
@@ -783,120 +942,6 @@ const getLectures = (config) => {
     lectures.push({ title: `L${String(i + 1).padStart(2, '0')}` })
   }
   return lectures
-}
-
-const getCardsForLectureBoard = (board, lectures, config) => {
-  const cards = []
-  const questions = []
-  for (const lecture of lectures) {
-    for (const componentType of config.componentTypes) {
-      if (componentType.contentType === CONTENT_TYPES.DOCUMENT) {
-        // For documents, create single card
-        cards.push({
-          title: `${componentType.name}`,
-          type: componentType.name,
-          lecture: lecture.id,
-          component: componentType.name,
-          course: courseId.value,
-          board: board.id,
-          column: 'backlog',
-          status: 'Not Started',
-          description: `${componentType.name} for ${lecture.title}`,
-          assignment_type: null,
-          assignment_is_verified: false,
-          file_link: null,
-        })
-      } else if (componentType.contentType === CONTENT_TYPES.ASSIGNMENT) {
-        // For assignments, create card for each assignment type
-        for (const assignmentType of componentType.assignmentTypes) {
-          cards.push({
-            title: `${componentType.name} - ${assignmentType.name}`,
-            type: componentType.name,
-            lecture: lecture.id,
-            component: componentType.name,
-            course: courseId.value,
-            board: board.id,
-            column: 'backlog',
-            status: 'Not Started',
-            description: `${componentType.name} ${assignmentType.name} for ${lecture.title}`,
-            assignment_type: assignmentType.name,
-            assignment_is_verified: false,
-            question_count: assignmentType.count,
-            questions: [],
-            assignment_link: null,
-            set_name: null,
-          })
-
-          // Create individual questions for this assignment type
-          for (let i = 0; i < assignmentType.count; i++) {
-            questions.push({
-              title: `${assignmentType.name} Q${String(i + 1).padStart(2, '0')}`,
-              type: assignmentType.name,
-              lecture: lecture.id,
-            })
-          }
-        }
-      }
-    }
-  }
-  return [cards, questions]
-}
-
-const getContests = (config) => {
-  const contests = []
-  for (const contestType of config.contestTypes) {
-    contests.push({
-      title: `${contestType.name}`,
-      course: courseId.value,
-      contest_type: contestType.name,
-    })
-  }
-  return contests
-}
-
-const getCardsForContestBoard = (board, contests, config) => {
-  const cards = []
-  const questions = []
-  for (const contest of contests) {
-    const contestConfig = config.contestTypes.find((c) => c.name === contest.contest_type)
-
-    if (!contestConfig) {
-      console.warn('No contest config found for contest type:', contest.contest_type)
-      continue
-    }
-    for (const assignmentType of contestConfig.assignmentTypes) {
-      for (const set of contestConfig.sets) {
-        cards.push({
-          title: `${contest.title} - ${assignmentType.name} - ${set}`,
-          type: assignmentType.name,
-          contest: contest.id,
-          component: 'Contest',
-          course: courseId.value,
-          board: board.id,
-          column: 'backlog',
-          status: 'Not Started',
-          description: `Contest card for ${contest.title} - ${assignmentType.name}`,
-          assignment_type: assignmentType.name,
-          assignment_is_verified: false,
-          // Additional required fields
-          file_link: null,
-          question_count: assignmentType.count,
-          questions: [],
-          assignment_link: null,
-          set_name: set,
-        })
-
-        for (let i = 0; i < assignmentType.count; i++) {
-          questions.push({
-            title: `${assignmentType.name} Q${String(i + 1).padStart(2, '0')}`,
-            type: assignmentType.name,
-            contest: contest.id,
-          })
-        }
-      }
-    }
-  }
-  return [cards, questions]
 }
 
 // Update JSON when config changes

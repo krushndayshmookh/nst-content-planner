@@ -550,10 +550,7 @@ const createCard = async () => {
       }
     }
 
-    // Create the card
-    await courseStore.createCard(cardData)
-
-    // Create questions if it's an assignment type or contest
+    // Create questions first if it's an assignment type or contest
     if ((isAssignmentType.value || cardType.value === 'Contest') && questionCount.value > 0) {
       const questions = []
       for (let i = 0; i < questionCount.value; i++) {
@@ -564,8 +561,13 @@ const createCard = async () => {
             cardType.value === 'Contest' ? selectedContest.value : selectedLecture.value,
         })
       }
-      await courseStore.createBulkQuestions(questions)
+      // Create questions and get their IDs
+      const questionIds = await courseStore.createBulkQuestions(questions)
+      cardData.questions = questionIds
     }
+
+    // Create the card with question IDs
+    await courseStore.createCard(cardData)
 
     // Refresh the board
     await courseStore.fetchBoard(boardId.value)
