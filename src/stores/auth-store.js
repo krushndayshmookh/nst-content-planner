@@ -36,12 +36,30 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async signUp({ name, email, password, passwordConfirm }) {
+    async signUp({ name, email, password, passwordConfirm, campus }) {
       try {
-        await pb.collection('users').create({ name, email, password, passwordConfirm })
+        // Create the user
+        const user = await pb.collection('users').create({ name, email, password, passwordConfirm })
+
+        // Set email visibility to true
+        await pb.collection('users').update(user.id, {
+          emailVisibility: true,
+        })
+
+        // Create the associated profile with default values
+        await pb.collection('profiles').create({
+          user: user.id,
+          email,
+          role: 'student', // Default role
+          campus: campus || 'ADYPU', // Use provided campus or default to ADYPU
+        })
+
+        // Sign in the user
         const authData = await pb.collection('users').authWithPassword(email, password)
         this.user = authData.record
         this.token = authData.token
+
+        return true
       } catch (error) {
         console.error(error)
         return false
