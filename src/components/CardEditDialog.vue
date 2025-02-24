@@ -288,6 +288,25 @@
               <q-separator />
               <q-item dense class="q-pr-xs q-py-xs">
                 <q-item-section side>
+                  <q-icon name="eva-grid-outline" />
+                </q-item-section>
+                <q-item-section>
+                  <q-select
+                    v-model="selectedBoard"
+                    :options="courseBoards"
+                    option-label="title"
+                    option-value="id"
+                    standout
+                    dense
+                    emit-value
+                    map-options
+                    @update:model-value="handleBoardChange"
+                  />
+                </q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item dense class="q-pr-xs q-py-xs">
+                <q-item-section side>
                   <q-icon
                     :name="COLUMNS_ICONS[currentColumn]"
                     :color="COLUMN_COLORS[currentColumn]"
@@ -309,12 +328,12 @@
               </q-item>
             </q-card>
 
-            <q-card flat bordered class="q-mb-md">
+            <q-card v-if="card.contest" flat bordered class="q-mb-md">
               <q-item-label header class="q-py-sm">Contest Details</q-item-label>
-              <q-separator v-if="card.contest" />
+              <q-separator />
 
               <!-- Contest Specific Fields -->
-              <q-list v-if="card.contest" dense>
+              <q-list dense>
                 <q-item>
                   <q-item-section side>
                     <q-icon name="eva-calendar-outline" />
@@ -737,6 +756,7 @@ const isDirty = ref({
   creation_deadline: false,
   r1_deadline: false,
   r2_deadline: false,
+  board: false,
 })
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -1061,6 +1081,49 @@ const highlightComment = (commentId) => {
     tempHighlightedComment.value = null
   }, 3000)
 }
+
+// Add new refs and computed properties
+const selectedBoard = ref(card.board)
+const courseBoards = computed(() => courseStore.selectedCourseBoards)
+
+// Add new handler for board changes
+const handleBoardChange = async (boardId) => {
+  try {
+    // Update the card's board
+    await courseStore.updateCard(card.id, { board: boardId })
+
+    // Update local state
+    selectedBoard.value = boardId
+
+    // Don't refresh the current board view since we're in a dialog
+    isDirty.value.board = false
+
+    // Emit board change event if the board actually changed
+    if (boardId !== card.board) {
+      courseStore.selectedBoardCards = courseStore.selectedBoardCards.filter(
+        (c) => c.id !== card.id,
+      )
+      courseStore.groupCardsByColumns()
+    }
+  } catch (error) {
+    console.error('Failed to update board:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to update board',
+      position: 'bottom-right',
+    })
+  }
+}
+
+// Add isDirty tracking for board
+isDirty.value.board = false
+
+// Update watch section to track board changes
+watch(selectedBoard, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    isDirty.value.board = true
+  }
+})
 </script>
 
 <style scoped lang="scss">
