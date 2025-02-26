@@ -39,7 +39,7 @@
             <div class="row items-center justify-end q-col-gutter-md">
               <div class="col-auto">
                 <q-input
-                  v-model="filter"
+                  v-model="filter.search"
                   borderless
                   placeholder="Search tasks..."
                   outlined
@@ -51,6 +51,127 @@
                     <q-icon name="search" />
                   </template>
                 </q-input>
+              </div>
+
+              <div class="col-auto">
+                <q-btn-dropdown
+                  outline
+                  color="primary"
+                  :label="hasActiveFilters ? `Filters (${getActiveFiltersCount})` : 'Filters'"
+                  class="q-mr-md"
+                  :icon="hasActiveFilters ? 'eva-funnel' : 'eva-funnel-outline'"
+                  @show="initializeTempFilters"
+                >
+                  <q-list style="min-width: 350px" padding>
+                    <q-item-label header>Filter Options</q-item-label>
+
+                    <q-item>
+                      <q-item-section>
+                        <q-select
+                          v-model="tempFilterColumn"
+                          :options="boardColumns"
+                          option-label="title"
+                          option-value="id"
+                          label="Status"
+                          outlined
+                          dense
+                          multiple
+                          emit-value
+                          map-options
+                          clearable
+                          class="full-width"
+                          use-input
+                          use-chips
+                        />
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item>
+                      <q-item-section>
+                        <q-select
+                          v-model="tempFilterComponent"
+                          :options="componentOptions"
+                          option-label="label"
+                          option-value="value"
+                          label="Component"
+                          outlined
+                          dense
+                          multiple
+                          emit-value
+                          map-options
+                          clearable
+                          class="full-width"
+                          use-input
+                          use-chips
+                        />
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item>
+                      <q-item-section>
+                        <q-select
+                          v-model="tempFilterCreator"
+                          :options="teamMembers"
+                          option-label="name"
+                          option-value="id"
+                          label="Creator"
+                          outlined
+                          dense
+                          multiple
+                          emit-value
+                          map-options
+                          clearable
+                          class="full-width"
+                          use-input
+                          use-chips
+                        />
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item>
+                      <q-item-section>
+                        <q-select
+                          v-model="tempFilterReviewer"
+                          :options="teamMembers"
+                          option-label="name"
+                          option-value="id"
+                          label="Reviewer"
+                          outlined
+                          dense
+                          multiple
+                          emit-value
+                          map-options
+                          clearable
+                          class="full-width"
+                          use-input
+                          use-chips
+                        />
+                      </q-item-section>
+                    </q-item>
+
+                    <q-separator spaced />
+
+                    <q-item>
+                      <q-item-section>
+                        <div class="row justify-end q-gutter-sm">
+                          <q-btn
+                            flat
+                            label="Clear"
+                            :disable="!hasTempFilters"
+                            :color="hasActiveFilters ? 'primary' : 'grey'"
+                            @click="clearAllTempFilters"
+                          />
+                          <q-btn
+                            v-close-popup
+                            color="primary"
+                            label="Apply"
+                            @click="applyFilters"
+                          />
+                        </div>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-btn-dropdown>
               </div>
 
               <div class="col-auto">
@@ -96,20 +217,40 @@
           :visible-columns="visibleColumns"
           row-key="id"
           :filter="filter"
+          :filter-method="filterTable"
           :pagination="{ rowsPerPage: 20, sortBy: 'lecture', descending: true }"
           flat
           bordered
+          dense
+          :wrap-cells="false"
+          class="compact-table"
+          style="height: calc(100vh - 250px)"
         >
           <template #body="props">
             <q-tr :props="props" :class="STATUS_COLORS[props.row.column]">
-              <q-td key="lecture" :props="props">
+              <q-td key="lecture" :props="props" class="q-py-xs">
                 <div class="row items-center">
                   <div class="col">
-                    {{
-                      board?.type === 'contest'
-                        ? props.row.expand?.contest?.title
-                        : props.row.expand?.lecture?.title
-                    }}
+                    <q-badge
+                      v-if="props.row.lecture"
+                      color="blue-8"
+                      style="max-width: 100%"
+                      class="text-no-wrap"
+                    >
+                      <span class="ellipsis">
+                        {{ props.row.expand?.lecture?.title }}
+                      </span>
+                    </q-badge>
+                    <q-badge
+                      v-else-if="props.row.contest"
+                      color="blue-8"
+                      style="max-width: 100%"
+                      class="text-no-wrap"
+                    >
+                      <span class="ellipsis">
+                        {{ props.row.expand?.contest?.title }}
+                      </span>
+                    </q-badge>
                   </div>
                   <div v-if="isDelayed(props.row)" class="col-auto">
                     <q-icon
@@ -123,8 +264,33 @@
                   </div>
                 </div>
               </q-td>
-              <q-td key="component" :props="props">
-                {{ props.row.component }}
+              <q-td key="component" :props="props" class="q-py-xs">
+                <div class="row items-center">
+                  <q-badge
+                    :color="getTypeColor(props.row.component).bg"
+                    :text-color="getTypeColor(props.row.component).text"
+                    style="max-width: 100%"
+                    class="text-no-wrap"
+                  >
+                    <span class="ellipsis">{{ props.row.component }}</span>
+                  </q-badge>
+                  <q-badge
+                    v-if="props.row.assignment_type"
+                    color="secondary"
+                    style="max-width: 100%"
+                    class="q-ml-xs text-no-wrap"
+                  >
+                    <span class="ellipsis">{{ props.row.assignment_type }}</span>
+                  </q-badge>
+                  <q-badge
+                    v-if="props.row.set_name"
+                    color="orange"
+                    style="max-width: 100%"
+                    class="q-ml-xs text-no-wrap"
+                  >
+                    <span class="ellipsis">{{ props.row.set_name }}</span>
+                  </q-badge>
+                </div>
               </q-td>
               <q-td key="status" :props="props">
                 <q-select
@@ -292,7 +458,30 @@ const {
 const boardColumns = computed(() => courseStore.selectedBoard?.columns || [])
 
 const teamMembers = ref([])
-const filter = ref('')
+
+const filter = ref({
+  column: [],
+  component: [],
+  creator: [],
+  reviewer: [],
+  search: '',
+})
+
+// Temporary filter states (pending changes)
+
+const tempFilterColumn = ref([])
+const tempFilterComponent = ref([])
+const tempFilterCreator = ref([])
+const tempFilterReviewer = ref([])
+
+// Add computed properties for filter options
+const componentOptions = computed(() => {
+  const components = new Set(boardCards.value?.map((card) => card.component) || [])
+  return Array.from(components).map((component) => ({
+    label: component,
+    value: component,
+  }))
+})
 
 const isDelayed = (row) => {
   const today = new Date()
@@ -446,6 +635,46 @@ const STATUS_COLORS = {
   blocked: 'bg-red-2',
 }
 
+const TYPE_COLORS = {
+  'Lecture Outline': {
+    bg: 'light-green-2',
+    text: 'light-green-10',
+  },
+  Presentation: {
+    bg: 'purple-2',
+    text: 'purple-10',
+  },
+  'Lab Outline': {
+    bg: 'green-2',
+    text: 'green-10',
+  },
+  'In-class': {
+    bg: 'blue-2',
+    text: 'blue-10',
+  },
+  'Post-class': {
+    bg: 'light-blue-2',
+    text: 'light-blue-10',
+  },
+  Lab: {
+    bg: 'red-2',
+    text: 'red-10',
+  },
+  Contest: {
+    bg: 'pink-2',
+    text: 'pink-10',
+  },
+  // Default color for any other type
+  default: {
+    bg: 'gray-2',
+    text: 'gray-10',
+  },
+}
+
+const getTypeColor = (component) => {
+  return TYPE_COLORS[component] || TYPE_COLORS.default
+}
+
 const formatDate = (date) => {
   if (!date) return ''
   if (date instanceof Date) {
@@ -456,10 +685,81 @@ const formatDate = (date) => {
   if (isNaN(d.getTime())) return ''
   return d.toISOString().split('T')[0]
 }
-</script>
 
-<style scoped>
-.q-table__card {
-  width: 100%;
+// Custom filter function for the table
+const filterTable = (rows) => {
+  return rows.filter((row) => {
+    const matchesSearch =
+      !filter.value.search ||
+      row.component?.toLowerCase().includes(filter.value.search.toLowerCase()) ||
+      row.expand?.lecture?.title?.toLowerCase().includes(filter.value.search.toLowerCase()) ||
+      row.expand?.contest?.title?.toLowerCase().includes(filter.value.search.toLowerCase())
+
+    const matchesStatus = !filter.value.column.length || filter.value.column.includes(row.column)
+    const matchesComponent =
+      !filter.value.component.length || filter.value.component.includes(row.component)
+    const matchesCreator =
+      !filter.value.creator.length || filter.value.creator.includes(row.creator)
+    const matchesReviewer =
+      !filter.value.reviewer.length ||
+      filter.value.reviewer.includes(row.reviewer1) ||
+      filter.value.reviewer.includes(row.reviewer2)
+
+    return matchesSearch && matchesStatus && matchesComponent && matchesCreator && matchesReviewer
+  })
 }
-</style>
+
+const hasActiveFilters = computed(() => {
+  return (
+    filter.value.column.length > 0 ||
+    filter.value.component.length > 0 ||
+    filter.value.creator.length > 0 ||
+    filter.value.reviewer.length > 0
+  )
+})
+
+const getActiveFiltersCount = computed(() => {
+  return (
+    filter.value.column.length +
+    filter.value.component.length +
+    filter.value.creator.length +
+    filter.value.reviewer.length +
+    (filter.value.search ? 1 : 0)
+  )
+})
+
+const hasTempFilters = computed(() => {
+  return (
+    tempFilterColumn.value?.length > 0 ||
+    tempFilterComponent.value?.length > 0 ||
+    tempFilterCreator.value?.length > 0 ||
+    tempFilterReviewer.value?.length > 0
+  )
+})
+
+// Initialize temporary filters with current values when dropdown opens
+const initializeTempFilters = () => {
+  tempFilterColumn.value = [...filter.value.column]
+  tempFilterComponent.value = [...filter.value.component]
+  tempFilterCreator.value = [...filter.value.creator]
+  tempFilterReviewer.value = [...filter.value.reviewer]
+}
+
+// Apply temporary filters to active filters
+const applyFilters = () => {
+  filter.value.column = tempFilterColumn.value ? [...tempFilterColumn.value] : []
+  filter.value.component = tempFilterComponent.value ? [...tempFilterComponent.value] : []
+  filter.value.creator = tempFilterCreator.value ? [...tempFilterCreator.value] : []
+  filter.value.reviewer = tempFilterReviewer.value ? [...tempFilterReviewer.value] : []
+  // Force table to refresh
+  boardCards.value = [...boardCards.value]
+}
+
+// Clear all temporary filters
+const clearAllTempFilters = () => {
+  tempFilterColumn.value = []
+  tempFilterComponent.value = []
+  tempFilterCreator.value = []
+  tempFilterReviewer.value = []
+}
+</script>
