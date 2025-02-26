@@ -754,14 +754,14 @@ const r2Proxy = ref(null)
 
 const r1OptionsFn = (date) => {
   if (!creation_deadline.value) return true
-  const minDate = new Date(creation_deadline.value)
+  const minDate = QuasarDate.addToDate(new Date(creation_deadline.value), { days: -1 })
   const maxDate = QuasarDate.addToDate(minDate, { days: 7 })
   return QuasarDate.isBetweenDates(date, minDate, maxDate)
 }
 
 const r2OptionsFn = (date) => {
   if (!r1_deadline.value) return true
-  const minDate = new Date(r1_deadline.value)
+  const minDate = QuasarDate.addToDate(new Date(r1_deadline.value), { days: -1 })
   const maxDate = QuasarDate.addToDate(minDate, { days: 7 })
   return QuasarDate.isBetweenDates(date, minDate, maxDate)
 }

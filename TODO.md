@@ -47,6 +47,10 @@
 - [x] fix profile fetching issue
 - [ ] dashboard for logged in users
   - [ ] show number of cards to be worked on
+- [ ] filters
+- [ ] priority
+- [ ] story points
+- [ ] assignee should be easier to change
 
 
 
