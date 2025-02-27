@@ -87,9 +87,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCourseStore } from 'src/stores/course-store.js'
 
+const route = useRoute()
 const courseStore = useCourseStore()
 
 // State
@@ -100,14 +102,17 @@ const lectureTitle = ref('')
 const selectedCourse = ref(null)
 
 // Computed
+const courseId = computed(() => route.params.courseId)
 const course = computed(() => courseStore.selectedCourse)
 const availableCourses = computed(() => courseStore.courses)
-const lectures = computed(() => courseStore.lectures)
+const lectures = computed(() =>
+  courseStore.lectures.filter((lecture) => lecture.course === courseId.value),
+)
 
 // Methods
 const resetForm = () => {
   lectureTitle.value = ''
-  selectedCourse.value = course.value.id
+  selectedCourse.value = courseId.value
   selectedLecture.value = null
   isEditing.value = false
 }
@@ -128,7 +133,7 @@ const openEditLecture = (lecture) => {
 const createLecture = async () => {
   await courseStore.createLecture({
     title: lectureTitle.value,
-    course: selectedCourse.value,
+    course: courseId.value,
   })
   showLectureDialog.value = false
   resetForm()
@@ -140,7 +145,7 @@ const updateLecture = async () => {
   await courseStore.updateLecture({
     id: selectedLecture.value.id,
     title: lectureTitle.value,
-    course: selectedCourse.value,
+    course: courseId.value,
   })
   showLectureDialog.value = false
   resetForm()
@@ -148,9 +153,11 @@ const updateLecture = async () => {
 
 // Fetch initial data
 const fetchData = async () => {
-  await courseStore.fetchCourses()
-  await courseStore.fetchLectures()
+  await courseStore.fetchCourse(courseId.value)
+  await courseStore.fetchLectures(courseId.value)
 }
 
-fetchData()
+onMounted(() => {
+  fetchData()
+})
 </script>
