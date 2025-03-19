@@ -619,19 +619,20 @@ watch(showEditCard, (value) => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .draggable-list {
   min-height: 600px;
 }
 
 .ghost {
   & > div {
-    & > * {
-      opacity: 0.25;
-    }
     border: 1px dashed #ccc;
     background-color: transparent !important;
     box-shadow: none !important;
+
+    & > * {
+      opacity: 0.25;
+    }
   }
 }
 </style>

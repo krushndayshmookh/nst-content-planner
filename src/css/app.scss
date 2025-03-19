@@ -10,3 +10,8 @@
     box-shadow: $shadow-7;
   }
 }
+
+.monospace textarea {
+  font-family: monospace !important;
+  min-height: 400px !important;
+}

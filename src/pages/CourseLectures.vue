@@ -49,40 +49,18 @@
       </div>
     </div>
 
-    <q-dialog v-model="showLectureDialog" position="right" persistent full-height>
-      <q-card style="width: 400px">
-        <q-card-section>
-          <div class="text-h6">
-            {{ isEditing ? 'Edit Lecture' : 'Create Lecture' }}
-            <q-btn v-close-popup class="float-right" flat dense round icon="eva-close-outline" />
-          </div>
-        </q-card-section>
-        <q-separator />
-        <q-card-section>
-          <q-input v-model="lectureTitle" label="Title" outlined dense class="q-mb-md" />
-          <q-select
-            v-model="selectedCourse"
-            :options="availableCourses"
-            label="Course"
-            option-label="title"
-            option-value="id"
-            emit-value
-            map-options
-            outlined
-            dense
-            class="q-mb-md"
-          />
-
-          <q-btn
-            class="full-width"
-            :label="isEditing ? 'Update' : 'Create'"
-            color="primary"
-            @click="isEditing ? updateLecture() : createLecture()"
-          />
-        </q-card-section>
-        <q-separator />
-      </q-card>
-    </q-dialog>
+    <!-- Replace the old dialog with the new component -->
+    <LectureConfigDialog
+      v-model="showCreateLecture"
+      mode="single"
+      title="Create Lecture"
+      :course-id="courseId"
+      :initial-config="lectureConfig"
+      :loading="isCreatingLecture"
+      :loading-text="createProgress"
+      action-button-text="Create"
+      @create="handleCreateLecture"
+    />
   </q-page>
 </template>
 
@@ -90,66 +68,90 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCourseStore } from 'src/stores/course-store.js'
+import { useQuasar } from 'quasar'
+import LectureConfigDialog from 'src/components/LectureConfigDialog.vue'
+import { DEFAULT_LECTURE_BOARD_CONFIG } from 'src/constants.js'
 
 const route = useRoute()
 const courseStore = useCourseStore()
+const $q = useQuasar()
 
 // State
-const showLectureDialog = ref(false)
+const showCreateLecture = ref(false)
 const isEditing = ref(false)
 const selectedLecture = ref(null)
-const lectureTitle = ref('')
-const selectedCourse = ref(null)
+const isCreatingLecture = ref(false)
+const createProgress = ref('')
 
 // Computed
 const courseId = computed(() => route.params.courseId)
 const course = computed(() => courseStore.selectedCourse)
-const availableCourses = computed(() => courseStore.courses)
 const lectures = computed(() =>
   courseStore.lectures.filter((lecture) => lecture.course === courseId.value),
 )
 
 // Methods
 const resetForm = () => {
-  lectureTitle.value = ''
-  selectedCourse.value = courseId.value
   selectedLecture.value = null
   isEditing.value = false
 }
 
 const openCreateLecture = () => {
   resetForm()
-  showLectureDialog.value = true
+  showCreateLecture.value = true
 }
 
 const openEditLecture = (lecture) => {
   selectedLecture.value = lecture
-  lectureTitle.value = lecture.title
-  selectedCourse.value = lecture.course
   isEditing.value = true
-  showLectureDialog.value = true
+  showCreateLecture.value = true
 }
 
-const createLecture = async () => {
-  await courseStore.createLecture({
-    title: lectureTitle.value,
-    course: courseId.value,
-  })
-  showLectureDialog.value = false
-  resetForm()
+const handleCreateLecture = (config) => {
+  isCreatingLecture.value = true
+  createProgress.value = 'Creating lecture...'
+
+  // Create the lecture with the provided config
+  courseStore
+    .createLecture({
+      title: config.title,
+      course: courseId.value,
+      createCards: true,
+      componentConfig: {
+        componentTypes: config.componentTypes,
+      },
+    })
+    .then(() => {
+      showCreateLecture.value = false
+      isCreatingLecture.value = false
+      createProgress.value = ''
+      $q.notify({
+        type: 'positive',
+        message: 'Lecture created successfully',
+      })
+      loadLectures()
+    })
+    .catch((error) => {
+      isCreatingLecture.value = false
+      createProgress.value = ''
+      $q.notify({
+        type: 'negative',
+        message: `Failed to create lecture: ${error.message}`,
+      })
+    })
 }
 
-const updateLecture = async () => {
-  if (!selectedLecture.value) return
-
-  await courseStore.updateLecture({
-    id: selectedLecture.value.id,
-    title: lectureTitle.value,
-    course: courseId.value,
-  })
-  showLectureDialog.value = false
-  resetForm()
+// Add the loadLectures function
+const loadLectures = () => {
+  courseStore.fetchLectures(courseId.value)
 }
+
+// Add lectureConfig for the dialog
+const lectureConfig = ref({
+  title: '',
+  numberOfLectues: 1,
+  componentTypes: DEFAULT_LECTURE_BOARD_CONFIG.componentTypes,
+})
 
 // Fetch initial data
 const fetchData = async () => {

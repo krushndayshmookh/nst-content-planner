@@ -178,156 +178,17 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="showCreateLectureBoard" position="right" persistent full-height>
-      <q-card style="width: 800px">
-        <q-card-section>
-          <div class="text-h6">
-            Create Lecture Board
-            <q-btn v-close-popup class="float-right" flat dense round icon="eva-close-outline" />
-          </div>
-        </q-card-section>
-        <q-separator></q-separator>
-        <q-card-section class="q-pa-none">
-          <q-tabs
-            v-model="lectureBoardTab"
-            dense
-            class="text-grey"
-            active-color="primary"
-            indicator-color="primary"
-            align="justify"
-            narrow-indicator
-          >
-            <q-tab name="basic" label="Basic Info" />
-            <q-tab name="config" label="Configuration" />
-            <q-tab name="json" label="JSON" />
-          </q-tabs>
-
-          <q-separator />
-
-          <q-tab-panels v-model="lectureBoardTab" animated>
-            <q-tab-panel name="basic">
-              <q-input v-model="lectureBoardTitle" label="Title" outlined dense class="q-mb-md" />
-            </q-tab-panel>
-
-            <q-tab-panel name="config">
-              <div class="row q-col-gutter-md">
-                <div class="col-12">
-                  <q-input
-                    v-model.number="lectureBoardConfig.numberOfLectues"
-                    type="number"
-                    label="Number of Lectures"
-                    outlined
-                    dense
-                  />
-                </div>
-
-                <div class="col-12">
-                  <div class="text-subtitle2 q-mb-sm">Component Types</div>
-                  <q-list bordered separator>
-                    <q-item
-                      v-for="(component, index) in lectureBoardConfig.componentTypes"
-                      :key="index"
-                    >
-                      <q-item-section>
-                        <q-input
-                          v-model="component.name"
-                          label="Name"
-                          dense
-                          outlined
-                          class="q-mb-sm"
-                        />
-                        <q-select
-                          v-model="component.contentType"
-                          :options="['document', 'assignment']"
-                          label="Content Type"
-                          dense
-                          outlined
-                          class="q-mb-sm"
-                          @update:model-value="
-                            (val) => {
-                              if (
-                                val === 'assignment' &&
-                                (!component.assignmentTypes || !component.assignmentTypes.length)
-                              ) {
-                                component.assignmentTypes = [{ name: '', count: 1 }]
-                              }
-                            }
-                          "
-                        />
-
-                        <template v-if="component.contentType === 'assignment'">
-                          <div class="text-caption q-mb-sm">Assignment Types</div>
-                          <div
-                            v-for="(type, typeIndex) in component.assignmentTypes"
-                            :key="typeIndex"
-                            class="row q-col-gutter-sm q-mb-sm"
-                          >
-                            <div class="col">
-                              <q-input v-model="type.name" label="Type" dense outlined />
-                            </div>
-                            <div class="col-4">
-                              <q-input
-                                v-model.number="type.count"
-                                type="number"
-                                label="Count"
-                                dense
-                                outlined
-                              />
-                            </div>
-                          </div>
-                        </template>
-                      </q-item-section>
-
-                      <q-item-section side>
-                        <q-btn
-                          flat
-                          round
-                          dense
-                          color="negative"
-                          icon="eva-trash-2-outline"
-                          @click="lectureBoardConfig.componentTypes.splice(index, 1)"
-                        />
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
-
-                  <q-btn
-                    flat
-                    color="primary"
-                    label="Add Component"
-                    class="q-mt-sm"
-                    @click="addLectureBoardComponent"
-                  />
-                </div>
-              </div>
-            </q-tab-panel>
-
-            <q-tab-panel name="json">
-              <q-input
-                v-model="lectureBoardConfigJson"
-                type="textarea"
-                filled
-                autogrow
-                class="monospace"
-                :error="jsonError"
-                :error-message="jsonError ? 'Invalid JSON format' : ''"
-                @update:model-value="updateConfigFromJson"
-              />
-            </q-tab-panel>
-          </q-tab-panels>
-        </q-card-section>
-        <q-separator></q-separator>
-        <q-card-section>
-          <q-btn
-            class="full-width"
-            :label="isCreatingLectureBoard ? createProgress : 'Create'"
-            color="primary"
-            :loading="isCreatingLectureBoard"
-            @click="createLectureBoard"
-          />
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+    <LectureConfigDialog
+      v-model="showCreateLectureBoard"
+      mode="board"
+      title="Create Lecture Board"
+      :course-id="courseId"
+      :initial-config="lectureBoardConfig"
+      :loading="isCreatingLectureBoard"
+      :loading-text="createProgress"
+      action-button-text="Create"
+      @create="handleCreateLectureBoard"
+    />
 
     <q-dialog v-model="showCreateContestBoard" position="right" persistent full-height>
       <q-card style="width: 800px">
@@ -523,6 +384,7 @@ import {
   DEFAULT_CONTEST_BOARD_CONFIG,
   CONTENT_TYPES,
 } from 'src/constants.js'
+import LectureConfigDialog from 'src/components/LectureConfigDialog.vue'
 
 const courseStore = useCourseStore()
 
@@ -587,11 +449,15 @@ const contestBoardTitle = ref('')
 const lectureBoardTab = ref('basic')
 const contestBoardTab = ref('basic')
 
-const lectureBoardConfig = ref({ ...DEFAULT_LECTURE_BOARD_CONFIG })
+const lectureBoardConfig = ref({
+  title: '',
+  numberOfLectues: 1,
+  componentTypes: [],
+})
+
 const contestBoardConfig = ref({ ...DEFAULT_CONTEST_BOARD_CONFIG })
 
 const lectureBoardConfigJson = ref('')
-const jsonError = ref(false)
 
 const contestBoardConfigJson = ref('')
 const contestJsonError = ref(false)
@@ -618,25 +484,6 @@ watch(lectureBoardTab, (newTab) => {
     lectureBoardConfigJson.value = JSON.stringify(lectureBoardConfig.value, null, 2)
   }
 })
-
-const updateConfigFromJson = (newValue) => {
-  try {
-    const parsed = JSON.parse(newValue)
-    lectureBoardConfig.value = parsed
-    jsonError.value = false
-  } catch (error) {
-    console.error('Failed to update config from JSON:', error)
-    jsonError.value = true
-  }
-}
-
-const addLectureBoardComponent = () => {
-  lectureBoardConfig.value.componentTypes.push({
-    name: '',
-    contentType: 'document',
-    assignmentTypes: [], // Initialize empty but will be populated if contentType is assignment
-  })
-}
 
 const getCardsForLectureBoard = (board, lectures, config) => {
   const cards = []
@@ -771,14 +618,14 @@ const getCardsForContestBoard = (board, contests, config) => {
   return [cards, questions, cardQuestionMap]
 }
 
-const createLectureBoard = async () => {
+const handleCreateLectureBoard = async (config) => {
   try {
     isCreatingLectureBoard.value = true
     createProgress.value = 'Creating board...'
 
     // Create the board first
     const board = await courseStore.createBoard({
-      title: lectureBoardTitle.value,
+      title: config.title,
       type: 'lecture',
       course: courseId.value,
       columns: LECTURE_COLUMNS,
@@ -786,64 +633,78 @@ const createLectureBoard = async () => {
 
     // Generate lectures
     createProgress.value = 'Creating lectures...'
-    const lectures = getLectures(lectureBoardConfig.value)
-    const batchResults = await courseStore.createBulkLectures(
-      lectures.map((lecture) => ({
-        ...lecture,
-        course: courseId.value,
-        board: board.id,
-      })),
-    )
-    // Extract created lectures from batch results
-    const createdLectures = batchResults.map((result) => result.body)
-
-    // Generate cards and questions
-    createProgress.value = 'Creating cards and questions...'
-    const [cardConfigs, questionConfigs, cardQuestionMap] = getCardsForLectureBoard(
-      board,
-      createdLectures,
-      lectureBoardConfig.value,
-    )
-
-    // Create questions first to get their IDs
-    let questionIds = []
-    if (questionConfigs.length > 0) {
-      questionIds = await courseStore.createBulkQuestions(questionConfigs)
-    }
-
-    // Update card configs with question IDs
-    cardConfigs.forEach((card, index) => {
-      const questionMapping = cardQuestionMap.get(index)
-      if (questionMapping) {
-        const cardQuestionIds = questionIds.slice(
-          questionMapping.start,
-          questionMapping.start + questionMapping.count,
-        )
-        card.questions = cardQuestionIds
-      }
+    await createLecturesWithBoard(courseId.value, board.id, {
+      numberOfLectues: config.numberOfLectues,
+      componentTypes: config.componentTypes,
     })
 
-    // Create cards with updated question IDs
-    await courseStore.createBulkCards(cardConfigs)
-
     showCreateLectureBoard.value = false
-    lectureBoardTitle.value = ''
-    lectureBoardConfig.value = { ...DEFAULT_LECTURE_BOARD_CONFIG }
+    isCreatingLectureBoard.value = false
+    createProgress.value = ''
 
     $q.notify({
       type: 'positive',
       message: 'Lecture board created successfully',
     })
+
+    loadCourseData()
   } catch (error) {
     console.error('Failed to create lecture board:', error)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to create lecture board',
-    })
-  } finally {
     isCreatingLectureBoard.value = false
     createProgress.value = ''
+
+    $q.notify({
+      type: 'negative',
+      message: `Failed to create lecture board: ${error.message}`,
+    })
   }
+}
+
+const createLecturesWithBoard = async (courseId, boardId, config) => {
+  // Generate lectures
+  const lectures = getLectures(config)
+  const batchResults = await courseStore.createBulkLectures(
+    lectures.map((lecture) => ({
+      ...lecture,
+      course: courseId,
+      board: boardId,
+    })),
+  )
+  // Extract created lectures from batch results
+  const createdLectures = batchResults.map((result) => result.body)
+
+  // Generate cards and questions
+  const [cardConfigs, questionConfigs, cardQuestionMap] = getCardsForLectureBoard(
+    { id: boardId },
+    createdLectures,
+    config,
+  )
+
+  // Create questions first to get their IDs
+  let questionIds = []
+  if (questionConfigs.length > 0) {
+    questionIds = await courseStore.createBulkQuestions(questionConfigs)
+  }
+
+  // Update card configs with question IDs
+  cardConfigs.forEach((card, index) => {
+    const questionMapping = cardQuestionMap.get(index)
+    if (questionMapping) {
+      const cardQuestionIds = questionIds.slice(
+        questionMapping.start,
+        questionMapping.start + questionMapping.count,
+      )
+      card.questions = cardQuestionIds
+    }
+  })
+
+  // Create cards with updated question IDs
+  await courseStore.createBulkCards(cardConfigs)
+}
+
+const loadCourseData = () => {
+  fetchCourse()
+  courseStore.fetchBoards(courseId.value)
 }
 
 const createContestBoard = async () => {
@@ -971,13 +832,4 @@ const updateContestConfigFromJson = (newValue) => {
   }
 }
 
-// Add CSS for monospace font
-const style = document.createElement('style')
-style.textContent = `
-.monospace textarea {
-  font-family: monospace !important;
-  min-height: 400px !important;
-}
-`
-document.head.appendChild(style)
 </script>

@@ -67,9 +67,20 @@
           </div>
 
           <div v-if="cardQuestions.length || otherQuestions.length" class="q-px-md">
-            <div class="row items-center q-mb-sm">
+            <div class="row items-center q-mb-sm q-col-gutter-sm">
               <div class="col">
                 <div class="text-h6">Questions</div>
+              </div>
+
+              <div class="col-auto">
+                <q-btn
+                  size="sm"
+                  icon="eva-plus-circle-outline"
+                  label="Question"
+                  color="primary"
+                  outline
+                  @click="addNewCardQuestion"
+                />
               </div>
               <div class="col-auto">
                 <q-btn-toggle
@@ -164,7 +175,7 @@
 
               <!-- Other questions from the same lecture/contest -->
               <div v-if="otherQuestions.length">
-                <div class="text-subtitle2 q-mb-sm">Other Questions</div>
+                <div class="text-subtitle2 q-mb-sm">Other Lecture Questions</div>
                 <q-list bordered separator>
                   <q-item
                     v-for="question in otherQuestions"
@@ -1306,6 +1317,29 @@ const removeQuestionFromCard = async (question) => {
     $q.notify({
       type: 'negative',
       message: 'Failed to remove question from card',
+      position: 'bottom-right',
+    })
+  }
+}
+
+const addNewCardQuestion = async () => {
+  try {
+    const newQuestion = {
+      type: card.assignment_type,
+      lecture: card.lecture,
+      contest: card.contest,
+      question_id: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+
+    const question = await pb.collection('questions').create(newQuestion)
+    await addQuestionToCard(question)
+  } catch (error) {
+    console.error('Failed to add new question:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to add new question',
       position: 'bottom-right',
     })
   }
