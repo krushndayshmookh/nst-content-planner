@@ -222,7 +222,6 @@ const fetchAvailableUsers = async () => {
 }
 
 const filteredUsers = computed(() => {
-  console.log(searchTerm.value)
   if (!searchTerm.value) {
     return availableUsers.value
   }
