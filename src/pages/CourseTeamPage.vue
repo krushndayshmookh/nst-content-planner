@@ -16,11 +16,7 @@
         icon="eva-book-outline"
         :to="`/courses/${courseId}`"
       />
-      <q-breadcrumbs-el
-        v-if="courseTeam"
-        label="Team"
-        icon="eva-person-outline"
-      />
+      <q-breadcrumbs-el v-if="courseTeam" label="Team" icon="eva-person-outline" />
     </q-breadcrumbs>
 
     <div v-if="course" class="q-mb-md row items-center">
@@ -97,7 +93,7 @@
         <q-card-section>
           <q-select
             v-model="selectedUsers"
-            :options="availableUsers"
+            :options="filteredUsers"
             option-label="name"
             option-value="id"
             multiple
@@ -106,6 +102,11 @@
             dense
             label="Select Users"
             class="q-mb-md"
+            use-input
+            fill-input
+            input-debounce="200"
+            @update:model-value="searchTerm = $event"
+            @filter="filterUsers"
           >
             <template #option="{ itemProps, opt, selected, toggleOption }">
               <q-item v-bind="itemProps">
@@ -183,6 +184,10 @@ const showAddMembers = ref(false)
 const showConfirmRemove = ref(false)
 const memberToRemove = ref(null)
 
+// New ref for search term
+const searchTerm = ref('')
+const originalUsers = ref([]) // Store unfiltered user list
+
 const fetchCourseTeam = async () => {
   try {
     loading.value = true
@@ -202,6 +207,7 @@ const fetchAvailableUsers = async () => {
   try {
     availableUsers.value = await userStore.fetchUsers()
     // Filter out users who are already team members
+    originalUsers.value = [...availableUsers.value] // Keep the full list
     if (courseTeam.value?.members) {
       const memberIds = courseTeam.value.members
       availableUsers.value = availableUsers.value.filter((u) => !memberIds.includes(u.id))
@@ -215,9 +221,27 @@ const fetchAvailableUsers = async () => {
   }
 }
 
+const filteredUsers = computed(() => {
+  if (!searchTerm.value) {
+    return availableUsers.value
+  }
+  return availableUsers.value.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.value.toLowerCase()),
+  )
+})
+const filterUsers = (val, update) => {
+  searchTerm.value = val // Store the search term
+  update(() => {
+    availableUsers.value = originalUsers.value.filter((user) =>
+      user.name.toLowerCase().includes(val.toLowerCase()),
+    )
+  })
+}
+
 const openAddMembers = async () => {
   await fetchAvailableUsers()
   selectedUsers.value = []
+  searchTerm.value = '' // Reset search when dialog opens
   showAddMembers.value = true
 }
 
